@@ -36,7 +36,7 @@ public class UserFundTest {
     void testFundRule() {
         Map<String, Object> context = new HashMap<>();
         context.put("userFund", 100.5);
-        context.put("orderAmt", 2);
+        context.put("orderAmt", 400);
         context = ruleService.executeRule(context, "fund_flow");
         System.out.println(JSON.toJSONString(context));
     }

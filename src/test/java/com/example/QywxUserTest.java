@@ -17,7 +17,7 @@ public class QywxUserTest {
     @Test
     void parse() {
         String inputJsonPath = "src/main/resources/flows/qywx_flow.json";
-        String outputDrlPath = "src/main/resources/rules/qywx_flow_rules.drl";
+        String outputDrlPath = "src/main/resources/rules/qywx_flow_rules.drl2";
         try {
             String drlContent = converter.convertJsonToDrl(inputJsonPath);
             converter.writeDrlFile(drlContent, outputDrlPath);
