@@ -1,0 +1,54 @@
+package com.example.rules;
+
+import com.example.model.Order;
+import java.math.BigDecimal;
+import java.util.Map;
+import java.util.HashMap;
+
+// 规则1：VIP用户享受8折优惠
+rule "vip_discount"
+    when
+        $order: Order(vip == true, discountPrice == null)
+    then
+        BigDecimal discountPrice = $order.getOriginalPrice().multiply(new BigDecimal("0.8"));
+        $order.setDiscountPrice(discountPrice);
+        System.out.println("VIP用户折扣规则执行：" + $order.getCustomerName() + " 享受8折优惠，折后价格：" + discountPrice);
+end
+
+// 规则2：订单原价大于1000元，享受9折优惠
+rule "price_discount"
+    when
+        $order: Order(originalPrice.compareTo(new BigDecimal("1000")) > 0, discountPrice == null)
+    then
+        BigDecimal discountPrice = $order.getOriginalPrice().multiply(new BigDecimal("0.9"));
+        $order.setDiscountPrice(discountPrice);
+        System.out.println("大额订单折扣规则执行：" + $order.getCustomerName() + " 订单价格超过1000元，享受9折优惠，折后价格：" + discountPrice);
+end
+
+// 规则3：积分大于1000分，享受9.5折优惠
+rule "score_discount"
+    when
+        $order: Order(score > 1000, discountPrice == null)
+    then
+        BigDecimal discountPrice = $order.getOriginalPrice().multiply(new BigDecimal("0.95"));
+        $order.setDiscountPrice(discountPrice);
+        System.out.println("积分折扣规则执行：" + $order.getCustomerName() + " 积分超过1000，享受9.5折优惠，折后价格：" + discountPrice);
+end
+
+// 规则4：默认规则，如果没有匹配到任何折扣规则，则原价不变
+rule "default_price"
+    when
+        $order: Order(discountPrice == null)
+    then
+        $order.setDiscountPrice($order.getOriginalPrice());
+        System.out.println("默认规则执行：" + $order.getCustomerName() + " 没有匹配到任何折扣规则，原价不变");
+end
+
+rule "fund_flow2"
+    agenda-group "fund_flow2"
+    no-loop true
+    when
+        $inputData : Map()
+    then
+        System.out.println("开始执行规则流程: fund_flow2");
+end

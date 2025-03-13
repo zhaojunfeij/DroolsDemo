@@ -1,0 +1,91 @@
+package org.example.ruleEngine.V3;
+
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.math.BigDecimal;
+import com.example.utils.VariableUtils;
+
+rule "qywx_flow"
+    agenda-group "qywx_flow"
+    no-loop true
+    when
+        $inputData : Map()
+    then
+        // 流程开始
+        System.out.println("开始执行规则流程: qywx_flow");
+        // 开始节点
+        Map<String, Object> flowContext = new HashMap<>();
+        flowContext.putAll($inputData);
+       //规则节点: 连锁门店校验规则
+        // 变量: 智慧门店_规则_门店入参
+        flowContext.put("storeId", VariableUtils.evaluateExpression(flowContext, "{\"type\":\"FUNC\",\"code\":\"SET_RESULT\",\"params\":[{\"type\":\"PARAM\",\"code\":\"$.storeId\",\"showText\":\"param\"}]}"));
+        System.out.println("变量取值结果storeId:"+flowContext.get("storeId"));
+        // 变量: 智慧门店_规则_连锁入参
+        flowContext.put("businessId", VariableUtils.evaluateExpression(flowContext, "{\"type\":\"FUNC\",\"code\":\"SET_RESULT\",\"params\":[{\"type\":\"PARAM\",\"code\":\"$.businessId\",\"showText\":\"param\"}]}"));
+        System.out.println("变量取值结果businessId:"+flowContext.get("businessId"));
+        // 变量: 企业微信好友弹窗_连锁校验
+        flowContext.put("9d1d8531-2b14-42bc-840f-d7fc6b4711d9", VariableUtils.evaluateExpression(flowContext, "{\"type\":\"FUNC\",\"code\":\"FUN_LOGIC_1698908730821\",\"params\":[]}"));
+        System.out.println("变量取值结果9d1d8531-2b14-42bc-840f-d7fc6b4711d9:"+flowContext.get("9d1d8531-2b14-42bc-840f-d7fc6b4711d9"));
+        // 变量: 企业微信好友弹窗_门店校验
+        flowContext.put("ee828ae9-ff51-45bc-bae9-6d3a7b13d634", VariableUtils.evaluateExpression(flowContext, "{\"type\":\"FUNC\",\"code\":\"FUN_LOGIC_1698908768621\",\"params\":[]}"));
+        System.out.println("变量取值结果ee828ae9-ff51-45bc-bae9-6d3a7b13d634:"+flowContext.get("ee828ae9-ff51-45bc-bae9-6d3a7b13d634"));
+        // 操作: IN
+        Object flowNodes_11126b2e-c6c0-4cfe-8720-87117c7efc70_1=VariableUtils.performOperation(flowContext, "businessId", "IN", "9d1d8531-2b14-42bc-840f-d7fc6b4711d9", "var");
+        flowContext.put("flowNodes_11126b2e-c6c0-4cfe-8720-87117c7efc70_1", flowNodes_11126b2e-c6c0-4cfe-8720-87117c7efc70_1);
+        System.out.println("变量计算结果flowNodes_11126b2e-c6c0-4cfe-8720-87117c7efc70_1_result:"+flowNodes_11126b2e-c6c0-4cfe-8720-87117c7efc70_1);
+        // 操作: NOT_IN
+        Object flowNodes_11126b2e-c6c0-4cfe-8720-87117c7efc70_2=VariableUtils.performOperation(flowContext, "storeId", "NOT_IN", "ee828ae9-ff51-45bc-bae9-6d3a7b13d634", "var");
+        flowContext.put("flowNodes_11126b2e-c6c0-4cfe-8720-87117c7efc70_2", flowNodes_11126b2e-c6c0-4cfe-8720-87117c7efc70_2);
+        System.out.println("变量计算结果flowNodes_11126b2e-c6c0-4cfe-8720-87117c7efc70_2_result:"+flowNodes_11126b2e-c6c0-4cfe-8720-87117c7efc70_2);
+       // 条件组 (AND)
+       if (flowContext.get("flowNodes_11126b2e-c6c0-4cfe-8720-87117c7efc70_1") && flowContext.get("flowNodes_11126b2e-c6c0-4cfe-8720-87117c7efc70_2")){
+       } else {
+       // 条件不满足，直接返回
+       return;
+       }
+        // 判断节点
+        // 变量: 是否是企业微信好友入参
+        flowContext.put("weComFriend", VariableUtils.evaluateExpression(flowContext, "{\"type\":\"FUNC\",\"code\":\"SET_RESULT\",\"params\":[{\"type\":\"PARAM\",\"code\":\"$.weComFriend\"}]}"));
+        System.out.println("变量取值结果weComFriend:"+flowContext.get("weComFriend"));
+        // 条件分支
+        // 条件 1
+        Object weComFriendConvert= VariableUtils.getVariableValue(flowContext, "weComFriend");
+        Boolean weComFriend=(Boolean)weComFriendConvert;
+        System.out.println("开始计算变量取值weComFriend:"+weComFriend);
+        if (weComFriend == true)) {
+        // 结束节点
+        // 设置结果: resultFlag
+        update($inputData); // 更新请求参数
+        System.out.println("规则流程执行完成");
+        }
+        // 条件 2
+        if (weComFriend != true)) {
+        // 判断节点
+        // 变量: 非企微好友开关
+        flowContext.put("c947a373-4058-4663-8971-6257ac7ec7fc", VariableUtils.evaluateExpression(flowContext, "{\"type\":\"FUNC\",\"code\":\"SET_RESULT\",\"params\":[{\"type\":\"FIXED\",\"value\":\"1\"}]}"));
+        System.out.println("变量取值结果c947a373-4058-4663-8971-6257ac7ec7fc:"+flowContext.get("c947a373-4058-4663-8971-6257ac7ec7fc"));
+        // 条件分支
+        // 条件 1
+        Object c947a373-4058-4663-8971-6257ac7ec7fcConvert= VariableUtils.getVariableValue(flowContext, "c947a373-4058-4663-8971-6257ac7ec7fc");
+        BigDecimal c947a373-4058-4663-8971-6257ac7ec7fc=(BigDecimal)c947a373-4058-4663-8971-6257ac7ec7fcConvert;
+        System.out.println("开始计算变量取值c947a373-4058-4663-8971-6257ac7ec7fc:"+c947a373-4058-4663-8971-6257ac7ec7fc);
+        if (c947a373-4058-4663-8971-6257ac7ec7fc != 1)) {
+        // 结束节点
+        // 设置结果: resultFlag
+        update($inputData); // 更新请求参数
+        System.out.println("规则流程执行完成");
+        }
+        // 条件 2
+        if (c947a373-4058-4663-8971-6257ac7ec7fc == 1)) {
+        // 赋值节点
+        // 设置结果
+        flowContext.put("$.resultFlag", "true");
+        // 结束节点
+        // 设置结果: resultFlag
+        update($inputData); // 更新请求参数
+        System.out.println("规则流程执行完成");
+        }
+        }
+end

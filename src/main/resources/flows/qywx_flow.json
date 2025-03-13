@@ -1,0 +1,585 @@
+{
+  "nodes": [
+    {
+      "id": "flowNodes_214024e1-b870-47f3-82d8-527f703fe4db",
+      "type": "assign",
+      "properties": {
+        "nodeVariableList": [
+
+        ],
+        "relationShipGroupList": [
+          {
+            "relationShipList": [
+              {
+                "operator": "SET_RESULT",
+                "operatorValue": "true",
+                "relationshipNo": 0,
+                "variableNo": "$.resultFlag",
+                "operatorValueType": "data",
+                "variableType": "requestParams",
+                "desc": ""
+              }
+            ]
+          }
+        ],
+        "relationLine": false
+      },
+      "position": {
+        "x": 1480,
+        "y": 380
+      },
+      "data": {
+        "key": "ASSIGNS",
+        "type": 5,
+        "dataType": "assign",
+        "name": "结果赋值",
+        "icon": "https://gjscrm-1256038144.cos.ap-beijing.myqcloud.com/amisUploadfile/1690868914104.png",
+        "disabled": false,
+        "group_id": 4,
+        "group_name": "数据处理",
+        "id": "flowNodes_214024e1-b870-47f3-82d8-527f703fe4db",
+        "warn": false,
+        "errorInfo": ""
+      }
+    },
+    {
+      "id": "flowNodes_d9b511ec-0fa7-40b7-ac1b-99d9d5cb35bd",
+      "type": "judge",
+      "properties": {
+        "nodeVariableList": [
+          {
+            "name": "非企微好友开关",
+            "type": "normal",
+            "variableNo": "c947a373-4058-4663-8971-6257ac7ec7fc",
+            "variableType": 5,
+            "data": {
+              "id": 261,
+              "status": null,
+              "gmt_create": "2023-11-03 15:46:16",
+              "gmt_update": "2023-11-14 14:12:40",
+              "create_by": "苏涛",
+              "update_by": "苏涛",
+              "version": null,
+              "extend": null,
+              "name": "非企微好友开关",
+              "description": "非企微好友开关",
+              "expression_tree_json": "{\"type\":\"FUNC\",\"code\":\"SET_RESULT\",\"params\":[{\"type\":\"FIXED\",\"value\":\"1\"}]}",
+              "type": 5,
+              "rule_no": "22867fac-648f-451e-a402-c4afa22c4dd6",
+              "variable_no": "c947a373-4058-4663-8971-6257ac7ec7fc",
+              "easy_env": "test",
+              "create_by_id": null,
+              "update_by_id": null,
+              "identify_code": "8a109c90a7f1483e801c8838f32225c5",
+              "result_type": "Object"
+            }
+          }
+        ],
+        "relationShipGroupList": [
+          {
+            "relationShipList": [
+              {
+                "operator": "NOT_EQ",
+                "operatorValue": "1",
+                "relationshipNo": 1,
+                "variableNo": "c947a373-4058-4663-8971-6257ac7ec7fc",
+                "operatorValueType": "data"
+              },
+              {
+                "operator": "EQ",
+                "operatorValue": "1",
+                "relationshipNo": 2,
+                "variableNo": "c947a373-4058-4663-8971-6257ac7ec7fc",
+                "operatorValueType": "data"
+              }
+            ]
+          }
+        ],
+        "relationLine": true
+      },
+      "position": {
+        "x": 980,
+        "y": 380
+      },
+      "data": {
+        "key": "DETERMINE",
+        "type": 2,
+        "dataType": "judge",
+        "name": "非企微好友开关判断",
+        "icon": "https://gjscrm-1256038144.cos.ap-beijing.myqcloud.com/amisUploadfile/1690868703337.png",
+        "disabled": false,
+        "group_id": 4,
+        "group_name": "数据处理",
+        "id": "flowNodes_d9b511ec-0fa7-40b7-ac1b-99d9d5cb35bd",
+        "warn": false,
+        "errorInfo": ""
+      }
+    },
+    {
+      "id": "flowNodes_669c9597-c13e-468e-90ed-0d89b2914986",
+      "type": "judge",
+      "properties": {
+        "nodeVariableList": [
+          {
+            "name": "是否是企业微信好友入参",
+            "type": "normal",
+            "variableNo": "154782fd-71a6-4a65-889e-a5cb2101c1c1",
+            "variableType": 5,
+            "data": {
+              "id": 281,
+              "status": 0,
+              "gmt_create": "2023-11-08 03:37:39",
+              "gmt_update": "2023-11-08 03:37:39",
+              "create_by": "苏涛",
+              "update_by": "苏涛",
+              "version": null,
+              "extend": null,
+              "name": "是否是企业微信好友入参",
+              "description": "是否是企业微信好友入参",
+              "expression_tree_json": "{\"type\":\"FUNC\",\"code\":\"SET_RESULT\",\"params\":[{\"type\":\"PARAM\",\"code\":\"$.weComFriend\"}]}",
+              "type": 5,
+              "rule_no": "22867fac-648f-451e-a402-c4afa22c4dd6",
+              "variable_no": "154782fd-71a6-4a65-889e-a5cb2101c1c1",
+              "easy_env": "test",
+              "create_by_id": null,
+              "update_by_id": null,
+              "identify_code": "468a33f271e94884a3f7c322378a7b43",
+              "result_type": null
+            }
+          }
+        ],
+        "relationShipGroupList": [
+          {
+            "relationShipList": [
+              {
+                "operator": "EQ",
+                "operatorValue": "true",
+                "relationshipNo": 1,
+                "variableNo": "154782fd-71a6-4a65-889e-a5cb2101c1c1",
+                "operatorValueType": "data"
+              },
+              {
+                "operator": "NOT_EQ",
+                "operatorValue": "true",
+                "relationshipNo": 2,
+                "variableNo": "154782fd-71a6-4a65-889e-a5cb2101c1c1",
+                "operatorValueType": "data"
+              }
+            ]
+          }
+        ],
+        "relationLine": true
+      },
+      "position": {
+        "x": 740,
+        "y": 260
+      },
+      "data": {
+        "key": "DETERMINE",
+        "type": 2,
+        "dataType": "judge",
+        "name": "是否企微好友判断",
+        "icon": "https://gjscrm-1256038144.cos.ap-beijing.myqcloud.com/amisUploadfile/1690868703337.png",
+        "disabled": false,
+        "group_id": 4,
+        "group_name": "数据处理",
+        "id": "flowNodes_669c9597-c13e-468e-90ed-0d89b2914986",
+        "warn": false,
+        "errorInfo": ""
+      }
+    },
+    {
+      "id": "flowNodes_11126b2e-c6c0-4cfe-8720-87117c7efc70",
+      "type": "rule",
+      "properties": {
+        "nodeVariableList": [
+          {
+            "name": "智慧门店_规则_门店入参",
+            "type": "normal",
+            "variableNo": "f8335c59-b1ee-4d50-8c64-5877e555a213",
+            "variableType": 6,
+            "data": {
+              "id": 288,
+              "status": 0,
+              "gmt_create": "2023-11-12 21:16:47",
+              "gmt_update": "2023-11-13 17:39:16",
+              "create_by": "苏涛",
+              "update_by": "苏涛",
+              "version": 0,
+              "extend": null,
+              "name": "智慧门店_规则_门店入参",
+              "description": "智慧门店_规则_门店入参",
+              "expression_tree_json": "{\"type\":\"FUNC\",\"code\":\"SET_RESULT\",\"params\":[{\"type\":\"PARAM\",\"code\":\"$.storeId\",\"showText\":\"param\"}]}",
+              "type": 6,
+              "rule_no": null,
+              "variable_no": "f8335c59-b1ee-4d50-8c64-5877e555a213",
+              "easy_env": "test",
+              "create_by_id": null,
+              "update_by_id": null,
+              "identify_code": "a902660d3aca4b7a9759532d2554efc5",
+              "result_type": "Object"
+            }
+          },
+          {
+            "name": "智慧门店_规则_连锁入参",
+            "type": "normal",
+            "variableNo": "220db748-9fd9-405e-83a5-c24fb5de5f13",
+            "variableType": 6,
+            "data": {
+              "id": 287,
+              "status": 0,
+              "gmt_create": "2023-11-12 21:16:15",
+              "gmt_update": "2023-11-13 03:39:25",
+              "create_by": "苏涛",
+              "update_by": "苏涛",
+              "version": 0,
+              "extend": null,
+              "name": "智慧门店_规则_连锁入参",
+              "description": "智慧门店_规则_连锁入参",
+              "expression_tree_json": "{\"type\":\"FUNC\",\"code\":\"SET_RESULT\",\"params\":[{\"type\":\"PARAM\",\"code\":\"$.businessId\",\"showText\":\"param\"}]}",
+              "type": 6,
+              "rule_no": null,
+              "variable_no": "220db748-9fd9-405e-83a5-c24fb5de5f13",
+              "easy_env": "test",
+              "create_by_id": null,
+              "update_by_id": null,
+              "identify_code": "a6eddb1ca21d4750b9e44a8e1e5f31a1",
+              "result_type": "Object"
+            }
+          },
+          {
+            "name": "企业微信好友弹窗_连锁校验",
+            "type": "normal",
+            "variableNo": "9d1d8531-2b14-42bc-840f-d7fc6b4711d9",
+            "variableType": 5,
+            "data": {
+              "id": 250,
+              "status": 0,
+              "gmt_create": "2023-11-02 15:33:40",
+              "gmt_update": "2023-11-02 15:33:40",
+              "create_by": "苏涛",
+              "update_by": "苏涛",
+              "version": null,
+              "extend": null,
+              "name": "企业微信好友弹窗_连锁校验",
+              "description": "企业微信好友弹窗_连锁校验",
+              "expression_tree_json": "{\"type\":\"FUNC\",\"code\":\"FUN_LOGIC_1698908730821\",\"params\":[]}",
+              "type": 5,
+              "rule_no": "22867fac-648f-451e-a402-c4afa22c4dd6",
+              "variable_no": "9d1d8531-2b14-42bc-840f-d7fc6b4711d9",
+              "easy_env": "test",
+              "create_by_id": null,
+              "update_by_id": null,
+              "identify_code": "a8d080d252af43edab3fb16134ea1fdd",
+              "result_type": null
+            }
+          },
+          {
+            "name": "企业微信好友弹窗_门店校验",
+            "type": "normal",
+            "variableNo": "ee828ae9-ff51-45bc-bae9-6d3a7b13d634",
+            "variableType": 5,
+            "data": {
+              "id": 251,
+              "status": 0,
+              "gmt_create": "2023-11-02 15:33:50",
+              "gmt_update": "2023-11-02 15:33:50",
+              "create_by": "苏涛",
+              "update_by": "苏涛",
+              "version": null,
+              "extend": null,
+              "name": "企业微信好友弹窗_门店校验",
+              "description": "企业微信好友弹窗_门店校验",
+              "expression_tree_json": "{\"type\":\"FUNC\",\"code\":\"FUN_LOGIC_1698908768621\",\"params\":[]}",
+              "type": 5,
+              "rule_no": "22867fac-648f-451e-a402-c4afa22c4dd6",
+              "variable_no": "ee828ae9-ff51-45bc-bae9-6d3a7b13d634",
+              "easy_env": "test",
+              "create_by_id": null,
+              "update_by_id": null,
+              "identify_code": "475f362302f64983af0556f3f52db4c8",
+              "result_type": null
+            }
+          }
+        ],
+        "relationShipGroupList": [
+          {
+            "index": 0,
+            "operator": "AND",
+            "relationShipList": [
+              {
+                "relationOperator": "AND",
+                "operator": "IN",
+                "operatorValue": "9d1d8531-2b14-42bc-840f-d7fc6b4711d9",
+                "relationshipNo": 1,
+                "variableNo": "220db748-9fd9-405e-83a5-c24fb5de5f13",
+                "operatorValueType": "var"
+              },
+              {
+                "relationOperator": null,
+                "operator": "NOT_IN",
+                "operatorValue": "ee828ae9-ff51-45bc-bae9-6d3a7b13d634",
+                "relationshipNo": 2,
+                "variableNo": "f8335c59-b1ee-4d50-8c64-5877e555a213",
+                "operatorValueType": "var"
+              }
+            ]
+          }
+        ],
+        "relationLine": true
+      },
+      "position": {
+        "x": 460,
+        "y": 260
+      },
+      "data": {
+        "key": "RULES",
+        "type": 3,
+        "dataType": "rule",
+        "name": "连锁门店校验规则",
+        "icon": "https://gjscrm-1256038144.cos.ap-beijing.myqcloud.com/amisUploadfile/1690869366305.png",
+        "disabled": false,
+        "group_id": 4,
+        "group_name": "数据处理",
+        "id": "flowNodes_11126b2e-c6c0-4cfe-8720-87117c7efc70",
+        "warn": false,
+        "errorInfo": ""
+      }
+    },
+    {
+      "id": "flowNodes_98f63665-04fc-4dfa-bb41-b509f5426fce",
+      "type": "end",
+      "properties": {
+        "nodeVariableList": [
+
+        ],
+        "relationShipGroupList": [
+
+        ],
+        "relationLine": false,
+        "resultSettingList": [
+          {
+            "key": "resultFlag",
+            "remark": "",
+            "type": "requestParams",
+            "value": "$.resultFlag"
+          }
+        ]
+      },
+      "position": {
+        "x": 1380,
+        "y": 260
+      },
+      "data": {
+        "key": "END",
+        "type": 1,
+        "dataType": "end",
+        "name": "结束",
+        "icon": "https://gjscrm-1256038144.cos.ap-beijing.myqcloud.com/amisUploadfile/1690868222989.png",
+        "disabled": false,
+        "group_id": 3,
+        "group_name": "基础节点",
+        "id": "flowNodes_98f63665-04fc-4dfa-bb41-b509f5426fce",
+        "warn": false,
+        "errorInfo": ""
+      }
+    },
+    {
+      "id": "flowNodes_deb5d145-f1ad-43ed-a017-485a6894b794",
+      "type": "start",
+      "properties": {
+        "nodeVariableList": [
+
+        ],
+        "relationShipGroupList": [
+
+        ],
+        "relationLine": false
+      },
+      "position": {
+        "x": 240,
+        "y": 260
+      },
+      "data": {
+        "key": "START",
+        "type": 0,
+        "dataType": "start",
+        "name": "开始",
+        "icon": "https://gjscrm-1256038144.cos.ap-beijing.myqcloud.com/amisUploadfile/1690868186929.png",
+        "disabled": false,
+        "group_id": 3,
+        "group_name": "基础节点",
+        "id": "flowNodes_deb5d145-f1ad-43ed-a017-485a6894b794",
+        "warn": false,
+        "errorInfo": ""
+      }
+    }
+  ],
+  "edges": [
+    {
+      "style": {
+        "strokeWidth": 3,
+        "stroke": "#333"
+      },
+      "type": "custom",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#333"
+      },
+      "source": "flowNodes_d9b511ec-0fa7-40b7-ac1b-99d9d5cb35bd",
+      "sourceHandle": null,
+      "target": "flowNodes_214024e1-b870-47f3-82d8-527f703fe4db",
+      "targetHandle": null,
+      "id": "reactflow__edge-flowNodes_d9b511ec-0fa7-40b7-ac1b-99d9d5cb35bd-flowNodes_214024e1-b870-47f3-82d8-527f703fe4db",
+      "label": 2,
+      "selected": false,
+      "sort": 0,
+      "properties": {
+        "type": "common",
+        "decisionCase": "",
+        "id": 0
+      }
+    },
+    {
+      "style": {
+        "strokeWidth": 3,
+        "stroke": "#333"
+      },
+      "type": "custom",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#333"
+      },
+      "source": "flowNodes_d9b511ec-0fa7-40b7-ac1b-99d9d5cb35bd",
+      "sourceHandle": null,
+      "target": "flowNodes_98f63665-04fc-4dfa-bb41-b509f5426fce",
+      "targetHandle": null,
+      "id": "reactflow__edge-flowNodes_d9b511ec-0fa7-40b7-ac1b-99d9d5cb35bd-flowNodes_98f63665-04fc-4dfa-bb41-b509f5426fce",
+      "label": 1,
+      "selected": false,
+      "sort": 0,
+      "properties": {
+        "type": "common",
+        "decisionCase": "",
+        "id": 1
+      }
+    },
+    {
+      "style": {
+        "strokeWidth": 3,
+        "stroke": "#333"
+      },
+      "type": "custom",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#333"
+      },
+      "source": "flowNodes_669c9597-c13e-468e-90ed-0d89b2914986",
+      "sourceHandle": null,
+      "target": "flowNodes_d9b511ec-0fa7-40b7-ac1b-99d9d5cb35bd",
+      "targetHandle": null,
+      "id": "reactflow__edge-flowNodes_669c9597-c13e-468e-90ed-0d89b2914986-flowNodes_d9b511ec-0fa7-40b7-ac1b-99d9d5cb35bd",
+      "selected": false,
+      "sort": 0,
+      "label": 2,
+      "properties": {
+        "type": "common",
+        "decisionCase": "",
+        "id": 2
+      }
+    },
+    {
+      "style": {
+        "strokeWidth": 3,
+        "stroke": "#333"
+      },
+      "type": "custom",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#333"
+      },
+      "source": "flowNodes_669c9597-c13e-468e-90ed-0d89b2914986",
+      "sourceHandle": null,
+      "target": "flowNodes_98f63665-04fc-4dfa-bb41-b509f5426fce",
+      "targetHandle": null,
+      "id": "reactflow__edge-flowNodes_669c9597-c13e-468e-90ed-0d89b2914986-flowNodes_98f63665-04fc-4dfa-bb41-b509f5426fce",
+      "label": 1,
+      "selected": false,
+      "sort": 0,
+      "properties": {
+        "type": "common",
+        "decisionCase": "",
+        "id": 3
+      }
+    },
+    {
+      "style": {
+        "strokeWidth": 3,
+        "stroke": "#333"
+      },
+      "type": "custom",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#333"
+      },
+      "source": "flowNodes_11126b2e-c6c0-4cfe-8720-87117c7efc70",
+      "sourceHandle": null,
+      "target": "flowNodes_669c9597-c13e-468e-90ed-0d89b2914986",
+      "targetHandle": null,
+      "id": "reactflow__edge-flowNodes_11126b2e-c6c0-4cfe-8720-87117c7efc70-flowNodes_669c9597-c13e-468e-90ed-0d89b2914986",
+      "selected": false,
+      "sort": 0,
+      "properties": {
+        "type": "common",
+        "decisionCase": "",
+        "id": 4
+      }
+    },
+    {
+      "style": {
+        "strokeWidth": 3,
+        "stroke": "#333"
+      },
+      "type": "custom",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#333"
+      },
+      "source": "flowNodes_214024e1-b870-47f3-82d8-527f703fe4db",
+      "sourceHandle": null,
+      "target": "flowNodes_98f63665-04fc-4dfa-bb41-b509f5426fce",
+      "targetHandle": null,
+      "id": "reactflow__edge-flowNodes_214024e1-b870-47f3-82d8-527f703fe4db-flowNodes_98f63665-04fc-4dfa-bb41-b509f5426fce",
+      "selected": false,
+      "sort": 0,
+      "properties": {
+        "type": "common",
+        "decisionCase": "",
+        "id": 5
+      }
+    },
+    {
+      "style": {
+        "strokeWidth": 3,
+        "stroke": "#333"
+      },
+      "type": "custom",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#333"
+      },
+      "source": "flowNodes_deb5d145-f1ad-43ed-a017-485a6894b794",
+      "sourceHandle": null,
+      "target": "flowNodes_11126b2e-c6c0-4cfe-8720-87117c7efc70",
+      "targetHandle": null,
+      "id": "reactflow__edge-flowNodes_deb5d145-f1ad-43ed-a017-485a6894b794-flowNodes_11126b2e-c6c0-4cfe-8720-87117c7efc70",
+      "selected": false,
+      "sort": 0,
+      "properties": {
+        "type": "common",
+        "decisionCase": "",
+        "id": 6
+      }
+    }
+  ]
+}
