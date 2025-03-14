@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Map;
 import java.util.List;
 import java.util.Set;
-import com.example.parse.model.EdgeInfo;
+import com.example.model.EdgeInfo;
 
 /**
  * 节点处理器接口

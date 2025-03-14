@@ -1,7 +1,7 @@
 package com.example.parse.node;
 
-import com.example.parse.model.EdgeInfo;
-import com.example.parse.util.DrlUtils;
+import com.example.model.EdgeInfo;
+import com.example.utils.DrlUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.Comparator;

@@ -1,4 +1,4 @@
-package com.example.parse.model;
+package com.example.model;
 
 /**
  * 边信息类

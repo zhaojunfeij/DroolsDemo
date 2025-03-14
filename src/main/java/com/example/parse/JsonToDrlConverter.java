@@ -1,8 +1,8 @@
 package com.example.parse;
 
-import com.example.parse.model.EdgeInfo;
+import com.example.model.EdgeInfo;
 import com.example.parse.node.NodeProcessorFactory;
-import com.example.parse.util.DrlUtils;
+import com.example.utils.DrlUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
