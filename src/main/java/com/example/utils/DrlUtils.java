@@ -9,13 +9,106 @@ import com.fasterxml.jackson.databind.JsonNode;
  */
 public class DrlUtils {
     
-    // 节点类型常量
+    /**
+     * 节点类型常量
+     */
     public static final String START_NODE = "start";
     public static final String END_NODE = "end";
     public static final String JUDGE_NODE = "judge";
     public static final String COMPUTE_NODE = "compute";
     public static final String ASSIGN_NODE = "assign";
     public static final String RULE_NODE = "rule";
+    
+    /**
+     * 添加包声明和导入
+     */
+    public static void addPackageAndImports(StringBuilder drlBuilder) {
+        drlBuilder.append("package com.example.rules;\n\n");
+        drlBuilder.append("import java.util.Map;\n");
+        drlBuilder.append("import java.util.HashMap;\n");
+        drlBuilder.append("import java.util.List;\n");
+        drlBuilder.append("import java.util.ArrayList;\n");
+        drlBuilder.append("import java.util.Date;\n");
+        drlBuilder.append("import java.math.BigDecimal;\n");
+        drlBuilder.append("import java.text.SimpleDateFormat;\n\n");
+    }
+    
+    /**
+     * 生成变量名
+     */
+    public static String generateVariableName(String prefix) {
+        return prefix + "_" + System.currentTimeMillis() + "_" + 
+               (int)(Math.random() * 1000);
+    }
+    
+    /**
+     * 格式化条件表达式
+     */
+    public static String formatCondition(String condition) {
+        if (condition == null || condition.trim().isEmpty()) {
+            return "true";
+        }
+        
+        // 处理常见的条件表达式
+        condition = condition.trim()
+                          .replace("==", " == ")
+                          .replace("!=", " != ")
+                          .replace(">=", " >= ")
+                          .replace("<=", " <= ")
+                          .replace(">", " > ")
+                          .replace("<", " < ")
+                          .replace("&&", " && ")
+                          .replace("||", " || ");
+                          
+        return condition;
+    }
+    
+    /**
+     * 格式化动作表达式
+     */
+    public static String formatAction(String action) {
+        if (action == null || action.trim().isEmpty()) {
+            return "";
+        }
+        
+        // 移除末尾的分号（如果有）
+        action = action.trim();
+        if (action.endsWith(";")) {
+            action = action.substring(0, action.length() - 1);
+        }
+        
+        return action;
+    }
+    
+    /**
+     * 生成日志输出
+     */
+    public static String generateLogOutput(String message) {
+        return "System.out.println(\"" + message + "\");";
+    }
+    
+    /**
+     * 生成变量赋值
+     */
+    public static String generateVariableAssignment(String variableName, String value) {
+        return "Object " + variableName + " = " + value + ";";
+    }
+    
+    /**
+     * 生成Map操作
+     */
+    public static String generateMapOperation(String operation, String key, String value) {
+        switch (operation.toLowerCase()) {
+            case "put":
+                return "$inputData.put(\"" + key + "\", " + value + ");";
+            case "get":
+                return "$inputData.get(\"" + key + "\")";
+            case "remove":
+                return "$inputData.remove(\"" + key + "\");";
+            default:
+                throw new IllegalArgumentException("不支持的Map操作: " + operation);
+        }
+    }
     
     // 变量映射
     private static final Map<String, String> variableMap = new HashMap<>();
@@ -26,19 +119,6 @@ public class DrlUtils {
         variableMap.put("f8335c59-b1ee-4d50-8c64-5877e555a213", "storeId");
         variableMap.put("220db748-9fd9-405e-83a5-c24fb5de5f13", "businessId");
         variableMap.put("154782fd-71a6-4a65-889e-a5cb2101c1c1", "weComFriend");
-    }
-    
-    /**
-     * 添加包声明和导入
-     */
-    public static void addPackageAndImports(StringBuilder drlBuilder) {
-        drlBuilder.append("package org.example.ruleEngine.V3;\n\n");
-        drlBuilder.append("import java.util.Map;\n");
-        drlBuilder.append("import java.util.HashMap;\n");
-        drlBuilder.append("import java.util.List;\n");
-        drlBuilder.append("import java.util.ArrayList;\n");
-        drlBuilder.append("import java.math.BigDecimal;\n");
-        drlBuilder.append("import com.example.utils.VariableUtils;\n\n");
     }
     
     /**
