@@ -1,7 +1,6 @@
 package com.example.domain.processor;
 
 import com.example.domain.model.Node;
-import com.example.domain.model.Edge;
 import com.example.domain.model.FlowChart;
 import java.util.Set;
 import java.util.Map;
@@ -32,22 +31,10 @@ public interface NodeProcessor {
                      FlowChart flowChart,
                      Set<String> visitedNodes,
                      Map<String, Boolean> variableNameMap);
-                     
-    /**
-     * 处理下一个节点
-     */
-    default void processNextNodes(StringBuilder drlBuilder,
-                                Node currentNode,
-                                FlowChart flowChart,
-                                Set<String> visitedNodes,
-                                Map<String, Boolean> variableNameMap) {
-        flowChart.getOutgoingEdges(currentNode.getId())
-                .forEach(edge -> {
-                    Node nextNode = flowChart.getNodeMap().get(edge.getTargetId());
-                    if (nextNode != null && !visitedNodes.contains(nextNode.getId())) {
-                        NodeProcessorFactory.getProcessor(nextNode.getType())
-                                .process(drlBuilder, nextNode, flowChart, visitedNodes, variableNameMap);
-                    }
-                });
-    }
+
+    void processNextNodes(StringBuilder drlBuilder,
+                          Node currentNode,
+                          FlowChart flowChart,
+                          Set<String> visitedNodes,
+                          Map<String, Boolean> variableNameMap);
 } 

@@ -3,6 +3,8 @@ package com.example.domain.model;
 import lombok.Data;
 import lombok.Builder;
 
+import java.util.Map;
+
 /**
  * 边领域模型
  */

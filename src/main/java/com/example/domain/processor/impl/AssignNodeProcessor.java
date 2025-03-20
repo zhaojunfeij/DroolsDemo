@@ -2,7 +2,7 @@ package com.example.domain.processor.impl;
 
 import com.example.domain.model.Node;
 import com.example.domain.model.FlowChart;
-import com.example.domain.processor.NodeProcessor;
+import com.example.domain.processor.AbstractNodeProcessor;
 import org.springframework.stereotype.Component;
 import java.util.Set;
 import java.util.Map;
@@ -12,7 +12,7 @@ import java.util.UUID;
  * 赋值节点处理器
  */
 @Component
-public class AssignNodeProcessor implements NodeProcessor {
+public class AssignNodeProcessor extends AbstractNodeProcessor {
     
     @Override
     public String getNodeType() {

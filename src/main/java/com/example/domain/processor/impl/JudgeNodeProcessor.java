@@ -3,9 +3,7 @@ package com.example.domain.processor.impl;
 import com.example.domain.model.Node;
 import com.example.domain.model.Edge;
 import com.example.domain.model.FlowChart;
-import com.example.domain.processor.NodeProcessor;
-import com.example.domain.processor.NodeProcessorFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.domain.processor.AbstractNodeProcessor;
 import org.springframework.stereotype.Component;
 import java.util.*;
 
@@ -13,10 +11,7 @@ import java.util.*;
  * 判断节点处理器
  */
 @Component
-public class JudgeNodeProcessor implements NodeProcessor {
-    
-    @Autowired
-    private NodeProcessorFactory nodeProcessorFactory;
+public class JudgeNodeProcessor extends AbstractNodeProcessor {
     
     @Override
     public String getNodeType() {
@@ -87,7 +82,7 @@ public class JudgeNodeProcessor implements NodeProcessor {
                 branchVisitedMap.put(1, trueVisited);
                 
                 // 处理true分支节点
-                nodeProcessorFactory.getProcessor(trueNode.getType())
+                getProcessor(trueNode.getType())
                         .process(drlBuilder, trueNode, flowChart, trueVisited, variableNameMap);
             }
         }
@@ -109,7 +104,7 @@ public class JudgeNodeProcessor implements NodeProcessor {
                 branchVisitedMap.put(0, falseVisited);
                 
                 // 处理false分支节点
-                nodeProcessorFactory.getProcessor(falseNode.getType())
+                getProcessor(falseNode.getType())
                         .process(drlBuilder, falseNode, flowChart, falseVisited, variableNameMap);
             }
         }
@@ -119,4 +114,5 @@ public class JudgeNodeProcessor implements NodeProcessor {
         // 将所有分支的访问记录合并回主访问记录
         branchVisitedMap.values().forEach(visitedNodes::addAll);
     }
+
 } 

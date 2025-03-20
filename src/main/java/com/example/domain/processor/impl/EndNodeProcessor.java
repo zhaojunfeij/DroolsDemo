@@ -2,7 +2,7 @@ package com.example.domain.processor.impl;
 
 import com.example.domain.model.Node;
 import com.example.domain.model.FlowChart;
-import com.example.domain.processor.NodeProcessor;
+import com.example.domain.processor.AbstractNodeProcessor;
 import org.springframework.stereotype.Component;
 import java.util.Set;
 import java.util.Map;
@@ -11,7 +11,7 @@ import java.util.Map;
  * 结束节点处理器
  */
 @Component
-public class EndNodeProcessor implements NodeProcessor {
+public class EndNodeProcessor extends AbstractNodeProcessor {
     
     @Override
     public String getNodeType() {
@@ -30,7 +30,7 @@ public class EndNodeProcessor implements NodeProcessor {
         visitedNodes.add(node.getId());
         
         generateCode(drlBuilder, node, flowChart, visitedNodes, variableNameMap);
-        // 结束节点不再处理下一个节点
+        processNextNodes(drlBuilder, node, flowChart, visitedNodes, variableNameMap);
     }
     
     @Override
@@ -42,5 +42,14 @@ public class EndNodeProcessor implements NodeProcessor {
         drlBuilder.append("        // 结束节点: ").append(node.getName()).append("\n");
         drlBuilder.append("        System.out.println(\"执行结束节点: ").append(node.getName()).append("\");\n");
         drlBuilder.append("end\n");
+    }
+    
+    @Override
+    public void processNextNodes(StringBuilder drlBuilder,
+                               Node currentNode,
+                               FlowChart flowChart,
+                               Set<String> visitedNodes,
+                               Map<String, Boolean> variableNameMap) {
+        // 结束节点不需要处理下一个节点
     }
 } 
