@@ -26,6 +26,18 @@ public class DrlGenerator {
         // 添加包声明和导入
         addPackageAndImports(drlBuilder);
         
+        // 添加规则结构和内容
+        buildRuleStructure(context);
+        
+        return drlBuilder.toString();
+    }
+    
+    /**
+     * 构建规则结构和内容
+     */
+    private void buildRuleStructure(DrlContext context) {
+        StringBuilder drlBuilder = context.getDrlBuilder();
+        
         // 规则名称
         drlBuilder.append("rule \"").append(context.getRuleName()).append("\"\n");
         drlBuilder.append("    agenda-group \"").append(context.getRuleName()).append("\"\n");
@@ -49,8 +61,6 @@ public class DrlGenerator {
         
         // 关闭规则
         drlBuilder.append("end\n");
-        
-        return drlBuilder.toString();
     }
     
     /**
