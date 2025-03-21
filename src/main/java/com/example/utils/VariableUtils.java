@@ -76,7 +76,7 @@ public class VariableUtils {
      */
     public static Object evaluateExpression(Map<String, Object> context, String expressionJson) {
         try {
-            return ParamProcessor.process(expressionJson, context);
+            return ParamUtils.process(expressionJson, context);
             //JsonNode expressionTree = objectMapper.readTree(expressionJson);
             //return evaluateExpressionNode(expressionTree, context);
         } catch (Exception e) {

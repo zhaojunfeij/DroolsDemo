@@ -13,7 +13,7 @@ import java.util.*;
  * JSON解析工具类
  */
 @Component
-public class JsonParser {
+public class JsonParserUtils {
     
     private final ObjectMapper mapper = new ObjectMapper();
     

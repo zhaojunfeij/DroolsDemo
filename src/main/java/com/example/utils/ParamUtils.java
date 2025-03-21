@@ -1,6 +1,8 @@
 package com.example.utils;
 
 import com.alibaba.fastjson.JSON;
+import com.example.model.Func;
+import com.example.model.Param;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -8,11 +10,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class ParamProcessor {
+public class ParamUtils {
 
 
     public static Object process(String jsonStr, Map<String, Object> values) throws Exception {
-        return new ParamProcessor().processJson(jsonStr, values);
+        return new ParamUtils().processJson(jsonStr, values);
     }
 
     public Object processJson(String jsonStr, Map<String, Object> values) throws Exception {

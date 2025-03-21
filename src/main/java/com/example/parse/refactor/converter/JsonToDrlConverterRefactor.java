@@ -4,7 +4,7 @@ import com.example.model.Edge;
 import com.example.model.FlowGraph;
 import com.example.model.Node;
 import com.example.utils.FileUtils;
-import com.example.utils.JsonParser;
+import com.example.utils.JsonParserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +21,7 @@ import java.util.Map;
 public class JsonToDrlConverterRefactor {
     
     @Autowired
-    private JsonParser jsonParser;
+    private JsonParserUtils jsonParserUtils;
     
     @Autowired
     private DrlGenerator drlGenerator;
@@ -38,11 +38,11 @@ public class JsonToDrlConverterRefactor {
      */
     public String convertJsonToDrl(String jsonFilePath) throws IOException {
         // 解析JSON文件
-        FlowGraph flowGraph = jsonParser.parseJson(jsonFilePath);
+        FlowGraph flowGraph = jsonParserUtils.parseJson(jsonFilePath);
         
         // 构建节点映射和边映射
-        Map<String, Node> nodeMap = jsonParser.buildNodeMap(flowGraph.getNodes());
-        Map<String, List<Edge>> edgeMap = jsonParser.buildEdgeMap(flowGraph.getEdges());
+        Map<String, Node> nodeMap = jsonParserUtils.buildNodeMap(flowGraph.getNodes());
+        Map<String, List<Edge>> edgeMap = jsonParserUtils.buildEdgeMap(flowGraph.getEdges());
         
         // 创建DRL生成上下文
         DrlContext context = createDrlContext(jsonFilePath, nodeMap, edgeMap);

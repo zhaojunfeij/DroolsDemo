@@ -1,15 +1,17 @@
-package com.example.utils;
-public class Param {
+package com.example.model;
+
+import java.util.List;
+
+public class Func {
     private String type;
     private String code;
-    private String showText;
+    private List<Param> params;
 
     // Getters and Setters
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }
     public String getCode() { return code; }
     public void setCode(String code) { this.code = code; }
-    public String getShowText() { return showText; }
-    public void setShowText(String showText) { this.showText = showText; }
-
+    public List<Param> getParams() { return params; }
+    public void setParams(List<Param> params) { this.params = params; }
 }
