@@ -24,9 +24,9 @@ rule "fund_flow"
         System.out.println("变量取值结果orderAmt:"+flowContext.get("orderAmt"));
         // 条件分支
         // 条件 1
-        Object orderAmtConvert= VariableUtils.getVariableValue(flowContext, "orderAmt");
-        BigDecimal orderAmt=new BigDecimal(orderAmtConvert.toString());
-        System.out.println("开始计算变量取值orderAmt:"+orderAmt);
+        Object orderAmtConvert = VariableUtils.getVariableValue(flowContext, "orderAmt");
+        BigDecimal orderAmt = new BigDecimal(orderAmtConvert.toString());
+        System.out.println("开始计算变量取值orderAmt: " + orderAmt);
         if (orderAmt.compareTo(new BigDecimal(10)) >= 0) {
         // 计算节点
         // 变量: 积分_用户积分
