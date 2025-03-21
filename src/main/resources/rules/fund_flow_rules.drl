@@ -53,7 +53,9 @@ rule "fund_flow"
         // 条件 2
         if (orderAmt.compareTo(new BigDecimal(10)) < 0) {
         // 赋值节点
-        // 赋值变量: 赠送商品积分
+        // 变量: 赠送商品积分
+        flowContext.put("fafd2670-ea2f-4df1-9d49-ca490eb2652e", VariableUtils.evaluateExpression(flowContext, "{\"type\":\"FUNC\",\"code\":\"SET_RESULT\",\"params\":[{\"type\":\"contextParams\",\"code\":\"allresult2\"}]}"));
+        System.out.println("变量取值结果fafd2670-ea2f-4df1-9d49-ca490eb2652e:"+flowContext.get("fafd2670-ea2f-4df1-9d49-ca490eb2652e"));
         // 设置结果
         flowContext.put("allresult2", "0");
         // 结束节点
