@@ -84,18 +84,4 @@ public class JsonToDrlConverterRefactor {
     public void writeDrlFile(String drlContent, String outputDrlPath) throws IOException {
         fileUtils.writeDrlFile(drlContent, outputDrlPath);
     }
-    
-    /**
-     * 主方法，用于测试
-     */
-    public void convertFile(String inputJsonPath, String outputDrlPath) {
-        try {
-            String drlContent = convertJsonToDrl(inputJsonPath);
-            writeDrlFile(drlContent, outputDrlPath);
-            System.out.println("成功将JSON转换为DRL文件: " + outputDrlPath);
-        } catch (Exception e) {
-            System.err.println("转换失败: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
 } 
