@@ -187,13 +187,7 @@ public class RuleNodeProcessor extends AbstractNodeProcessor {
         drlBuilder.append(nodeIdStr).append("_result:\"+");
         drlBuilder.append(nodeIdStr).append(");\n");
     }
-    
-    /**
-     * 获取上下文中的变量值，如果不存在则返回原值
-     */
-    private String getContextValue(DrlContext context, String key) {
-        return Objects.isNull(context.getVariableMap().get(key)) ? key : context.getVariableMap().get(key);
-    }
+
     
     @Override
     public String getNodeType() {
