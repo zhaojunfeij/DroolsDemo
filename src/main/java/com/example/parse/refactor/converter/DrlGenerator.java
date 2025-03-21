@@ -15,13 +15,6 @@ import java.util.Map;
 @Component
 public class DrlGenerator {
     
-    private final NodeProcessorFactory nodeProcessorFactory;
-    
-    @Autowired
-    public DrlGenerator(NodeProcessorFactory nodeProcessorFactory) {
-        this.nodeProcessorFactory = nodeProcessorFactory;
-    }
-    
     /**
      * 生成DRL规则内容
      */
@@ -136,7 +129,10 @@ public class DrlGenerator {
      * 处理单个节点
      */
     private void processNode(Node node, String nodeId, DrlContext context) {
-        NodeProcessor processor = nodeProcessorFactory.getProcessor(node.getType());
+
+        NodeProcessorFactory factory = NodeProcessorFactory.getInstance();
+
+        NodeProcessor processor = factory.getProcessor(node.getType());
         
         if (processor != null) {
             processor.process(node, nodeId, context);
