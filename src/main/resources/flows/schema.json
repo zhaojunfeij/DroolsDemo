@@ -1,0 +1,126 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Flow Schema",
+  "type": "object",
+  "definitions": {
+    "node": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "type": {
+          "type": "string",
+          "enum": ["start", "end", "assign", "judge", "rule", "compute"]
+        },
+        "properties": {
+          "type": "object",
+          "properties": {
+            "nodeVariableList": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "type": { "type": "string" },
+                  "variableNo": { "type": "string" },
+                  "variableType": { "type": ["number", "string"] },
+                  "data": { "type": "object" }
+                },
+                "required": ["name", "variableNo"]
+              }
+            },
+            "relationShipGroupList": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "relationShipList": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "operator": { "type": "string" },
+                        "operatorValue": { "type": ["string", "number"] },
+                        "relationshipNo": { "type": "number" },
+                        "variableNo": { "type": "string" },
+                        "operatorValueType": { "type": "string" }
+                      },
+                      "required": ["operator", "variableNo"]
+                    }
+                  }
+                }
+              }
+            },
+            "resultSettingList": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "key": { "type": "string" },
+                  "type": { "type": "string" },
+                  "value": { "type": "string" }
+                },
+                "required": ["key", "value"]
+              }
+            },
+            "relationLine": { "type": "boolean" }
+          },
+          "additionalProperties": false
+        },
+        "position": {
+          "type": "object",
+          "properties": {
+            "x": { "type": "number" },
+            "y": { "type": "number" }
+          },
+          "required": ["x", "y"]
+        },
+        "data": {
+          "type": "object",
+          "properties": {
+            "key": { "type": "string" },
+            "name": { "type": "string" },
+            "icon": { "type": "string" },
+            "backgroundImage": { "type": "string" },
+            "disabled": { "type": "boolean" }
+          },
+          "required": ["key", "name"]
+        }
+      },
+      "required": ["id", "type", "properties", "position", "data"]
+    },
+    "edge": {
+      "type": "object",
+      "properties": {
+        "source": { "type": "string" },
+        "target": { "type": "string" },
+        "style": {
+          "type": "object",
+          "properties": {
+            "strokeWidth": { "type": "number" },
+            "stroke": { "type": "string" }
+          }
+        },
+        "markerEnd": {
+          "type": "object",
+          "properties": {
+            "type": { "type": "string" },
+            "color": { "type": "string" }
+          }
+        },
+        "label": { "type": ["number", "string"] }
+      },
+      "required": ["source", "target"]
+    }
+  },
+  "properties": {
+    "nodes": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/node" }
+    },
+    "edges": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/edge" }
+    }
+  },
+  "required": ["nodes", "edges"]
+}

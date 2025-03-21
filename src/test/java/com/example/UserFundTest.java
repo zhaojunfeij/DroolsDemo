@@ -2,6 +2,7 @@ package com.example;
 
 import com.alibaba.fastjson.JSON;
 import com.example.parse.JsonToDrlConverter;
+import com.example.parse.refactor.converter.JsonToDrlConverterRefactor;
 import com.example.service.RuleService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +18,12 @@ public class UserFundTest {
     private RuleService ruleService;
     @Autowired
     private JsonToDrlConverter converter;
-
+    @Autowired
+    private JsonToDrlConverterRefactor converterRefactor;
     @Test
     void parse() {
         String inputJsonPath = "src/main/resources/flows/fund_flow.json";
-        String outputDrlPath = "src/main/resources/rules/fund_flow_rules.drl";
+        String outputDrlPath = "src/main/resources/rules/fund_flow_rules.drl2";
         try {
             String drlContent = converter.convertJsonToDrl(inputJsonPath);
             converter.writeDrlFile(drlContent, outputDrlPath);
@@ -31,12 +33,24 @@ public class UserFundTest {
             e.printStackTrace();
         }
     }
-
+    @Test
+    void parseRefactor() {
+        String inputJsonPath = "src/main/resources/flows/fund_flow.json";
+        String outputDrlPath = "src/main/resources/rules/fund_flow_rules.drl";
+        try {
+            String drlContent = converterRefactor.convertJsonToDrl(inputJsonPath);
+            converterRefactor.writeDrlFile(drlContent, outputDrlPath);
+            System.out.println("成功将JSON转换为DRL文件: " + outputDrlPath);
+        } catch (Exception e) {
+            System.err.println("转换失败: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
     @Test
     void testFundRule() {
         Map<String, Object> context = new HashMap<>();
         context.put("userFund", 100.5);
-        context.put("orderAmt", 400);
+        context.put("orderAmt", 12.5);
         context = ruleService.executeRule(context, "fund_flow");
         System.out.println(JSON.toJSONString(context));
     }
