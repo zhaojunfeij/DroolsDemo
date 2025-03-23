@@ -1,0 +1,91 @@
+package org.example.ruleEngine.V3;
+
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.math.BigDecimal;
+import com.example.utils.VariableUtils;
+
+rule "send_fund_flow"
+    agenda-group "send_fund_flow"
+    no-loop true
+    when
+        $inputData : Map()
+    then
+        // 流程开始
+        System.out.println("开始执行规则流程: send_fund_flow");
+        // 开始节点
+        Map<String, Object> flowContext = new HashMap<>();
+        flowContext.putAll($inputData);
+        // 判断节点
+        // 变量: 积分_下单金额
+        flowContext.put("orderAmt", VariableUtils.evaluateExpression(flowContext, "{\"type\":\"FUNC\",\"code\":\"SET_RESULT\",\"params\":[{\"type\":\"PARAM\",\"code\":\"$.orderAmt\",\"showText\":\"param\"}]}"));
+        System.out.println("变量取值结果orderAmt:"+flowContext.get("orderAmt"));
+        // 条件分支
+        // 条件 1
+        Object orderAmtConvert = VariableUtils.getVariableValue(flowContext, "orderAmt");
+        BigDecimal orderAmt = new BigDecimal(orderAmtConvert.toString());
+        System.out.println("开始计算变量取值orderAmt: " + orderAmt);
+        if (orderAmt.compareTo(new BigDecimal(10)) >= 0) {
+        // 计算节点
+        // 变量: 积分_用户积分
+        flowContext.put("userFund", VariableUtils.evaluateExpression(flowContext, "{\"type\":\"FUNC\",\"code\":\"SET_RESULT\",\"params\":[{\"type\":\"PARAM\",\"code\":\"$.userFund\",\"showText\":\"param\"}]}"));
+        System.out.println("变量取值结果userFund:"+flowContext.get("userFund"));
+        // 变量: 积分_下单金额
+        flowContext.put("orderAmt", VariableUtils.evaluateExpression(flowContext, "{\"type\":\"FUNC\",\"code\":\"SET_RESULT\",\"params\":[{\"type\":\"PARAM\",\"code\":\"$.orderAmt\",\"showText\":\"param\"}]}"));
+        System.out.println("变量取值结果orderAmt:"+flowContext.get("orderAmt"));
+        // 操作: ADD
+        Object nodes_bTN6HhKNXven6G21VxZ8Q_0=VariableUtils.performOperation(flowContext, "userFund", "ADD", "orderAmt", "var");
+        flowContext.put("nodes_bTN6HhKNXven6G21VxZ8Q_0", nodes_bTN6HhKNXven6G21VxZ8Q_0);
+        System.out.println("变量计算结果nodes_bTN6HhKNXven6G21VxZ8Q_0_result:"+nodes_bTN6HhKNXven6G21VxZ8Q_0);
+        // 赋值节点
+        // 设置结果
+        flowContext.put("e51ac426-e2f1-4b62-818d-64380edb5bb3", nodes_bTN6HhKNXven6G21VxZ8Q_0);
+       //规则节点: 规则
+        // 变量: 积分_下单门店
+        flowContext.put("storeId", VariableUtils.evaluateExpression(flowContext, "{\"type\":\"FUNC\",\"code\":\"SET_RESULT\",\"params\":[{\"type\":\"PARAM\",\"code\":\"$.storeId\",\"showText\":\"param\"}]}"));
+        System.out.println("变量取值结果storeId:"+flowContext.get("storeId"));
+        // 操作: EQ
+        boolean nodes_S17p_aQhCzuUCo0laSjWi_1=(boolean)VariableUtils.performOperation(flowContext, "storeId", "EQ", "99999", "data");
+        flowContext.put("nodes_S17p_aQhCzuUCo0laSjWi_1", nodes_S17p_aQhCzuUCo0laSjWi_1);
+        System.out.println("变量计算结果 nodes_S17p_aQhCzuUCo0laSjWi_1_result: "+nodes_S17p_aQhCzuUCo0laSjWi_1);
+        // 操作: GE
+        boolean nodes_S17p_aQhCzuUCo0laSjWi_2=(boolean)VariableUtils.performOperation(flowContext, "e51ac426-e2f1-4b62-818d-64380edb5bb3", "GE", "200", "data");
+        flowContext.put("nodes_S17p_aQhCzuUCo0laSjWi_2", nodes_S17p_aQhCzuUCo0laSjWi_2);
+        System.out.println("变量计算结果 nodes_S17p_aQhCzuUCo0laSjWi_2_result: "+nodes_S17p_aQhCzuUCo0laSjWi_2);
+       if (((boolean)flowContext.get("nodes_S17p_aQhCzuUCo0laSjWi_1")) && ((boolean)flowContext.get("nodes_S17p_aQhCzuUCo0laSjWi_2"))) {
+        // 结束节点
+        // 设置结果: userFund
+        // 请求参数处理
+        $inputData.put("userFund", flowContext.get("userFund"));
+        // 设置结果: orderAmt
+        // 请求参数处理
+        $inputData.put("orderAmt", flowContext.get("orderAmt"));
+        // 设置结果: prizeFund
+        // 变量参数处理
+        $inputData.put("prizeFund", flowContext.get("e51ac426-e2f1-4b62-818d-64380edb5bb3"));
+        System.out.println("规则流程执行完成");
+       } else {
+           // 条件不满足，直接返回
+           return;
+       }
+        }
+        // 条件 2
+        if (orderAmt.compareTo(new BigDecimal(10)) < 0) {
+        // 赋值节点
+        // 设置结果
+        flowContext.put("e51ac426-e2f1-4b62-818d-64380edb5bb3", 0);
+        // 结束节点
+        // 设置结果: userFund
+        // 请求参数处理
+        $inputData.put("userFund", flowContext.get("userFund"));
+        // 设置结果: orderAmt
+        // 请求参数处理
+        $inputData.put("orderAmt", flowContext.get("orderAmt"));
+        // 设置结果: prizeFund
+        // 变量参数处理
+        $inputData.put("prizeFund", flowContext.get("e51ac426-e2f1-4b62-818d-64380edb5bb3"));
+        System.out.println("规则流程执行完成");
+        }
+end
