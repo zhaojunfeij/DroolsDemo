@@ -16,24 +16,25 @@ import java.util.stream.IntStream;
 /**
  * 规则节点处理器 - 负责处理规则节点的DRL代码生成
  * 遵循单一职责原则，专注于规则条件判断逻辑的转换
+ * 支持多组条件逻辑与单组条件逻辑的灵活组合
  */
 @Component
 public class RuleNodeProcessor extends AbstractNodeProcessor {
-    
+
     @Override
     public void process(Node node, String nodeId, DrlContext context) {
         StringBuilder drlBuilder = context.getDrlBuilder();
-        
+
         // 添加规则节点注释
         drlBuilder.append("       //规则节点: ").append(node.getName()).append("\n");
-        
+
         // 处理节点变量
         processNodeVariables(node, context);
-        
+
         // 处理关系判断条件
         processRelationshipGroups(node, nodeId, context);
     }
-    
+
     /**
      * 处理节点变量列表
      */
@@ -41,82 +42,98 @@ public class RuleNodeProcessor extends AbstractNodeProcessor {
         Optional.ofNullable(node.getProperties().getNodeVariableList())
                 .ifPresent(variables -> variables.forEach(variable -> buildVariable(context, variable)));
     }
-    
+
     /**
-     * 处理关系组
+     * 处理关系组列表
+     * 支持多组条件的复杂组合
      */
     private void processRelationshipGroups(Node node, String nodeId, DrlContext context) {
         List<RelationShipGroup> relationShipGroups = node.getProperties().getRelationShipGroupList();
-        
+        StringBuilder drlBuilder = context.getDrlBuilder();
+
         if (relationShipGroups != null && !relationShipGroups.isEmpty()) {
-            // 处理AND/OR组合条件
-            for (RelationShipGroup group : relationShipGroups) {
-                processRelationshipGroup(group, node, nodeId, context);
-            }
+            // 先构建所有组的关系表达式
+            relationShipGroups.forEach(group -> 
+                buildRelationships(group.getRelationShipList(), node, context));
+            
+            // 开始构建条件判断语句
+            drlBuilder.append("       if (");
+            
+            // 处理多个关系组之间的条件组合
+            IntStream.range(0, relationShipGroups.size()).forEach(i -> {
+                RelationShipGroup group = relationShipGroups.get(i);
+                
+                // 添加组的开始括号
+                drlBuilder.append("(");
+                
+                // 构建组内条件
+                buildGroupConditions(group.getRelationShipList(), node, drlBuilder);
+                
+                // 添加组的结束括号
+                drlBuilder.append(")");
+                
+                // 添加组间关系运算符 (默认为 AND)
+                if (i < relationShipGroups.size() - 1) {
+                    String groupOperator = group.getOperator() != null ? group.getOperator() : "AND";
+                    if ("AND".equals(groupOperator)) {
+                        drlBuilder.append(" && ");
+                    } else if ("OR".equals(groupOperator)) {
+                        drlBuilder.append(" || ");
+                    }
+                }
+            });
+            
+            drlBuilder.append(") {\n");
+            
+            // 处理满足条件时的下一个节点
+            processNextNode(nodeId, context);
+            
+            // 添加else分支
+            drlBuilder.append("       } else {\n");
+            drlBuilder.append("           // 条件不满足，直接返回\n");
+            drlBuilder.append("           return;\n");
+            drlBuilder.append("       }\n");
         } else {
             // 没有条件组，直接过渡到下一个节点
             processNextNode(nodeId, context);
         }
     }
-    
+
     /**
-     * 处理单个关系组
+     * 构建组内条件表达式
      */
-    private void processRelationshipGroup(RelationShipGroup group, Node node, String nodeId, DrlContext context) {
-        StringBuilder drlBuilder = context.getDrlBuilder();
-        String groupOperator = group.getOperator() != null ? group.getOperator() : "AND";
-        List<RelationShip> relationships = group.getRelationShipList();
-        
-        if (relationships != null && !relationships.isEmpty()) {
-            // 构建关系条件
-            buildRelationships(relationships, node, context);
-            
-            // 添加条件组注释
-            drlBuilder.append("       // 条件组 (").append(groupOperator).append(")\n");
-            
-            // 构建条件判断语句
-            buildConditionStatement(relationships, node, drlBuilder);
-            
-            // 处理下一个节点
-            processNextNode(nodeId, context);
-            
-            // 添加else分支
-            addElseBranch(drlBuilder);
-        } else {
-            // 没有条件，直接过渡到下一个节点
-            processNextNode(nodeId, context);
+    private void buildGroupConditions(List<RelationShip> relationships, Node node, StringBuilder drlBuilder) {
+        if (relationships == null || relationships.isEmpty()) {
+            // 空组默认为true
+            drlBuilder.append("true");
+            return;
         }
-    }
-    
-    /**
-     * 构建所有关系
-     */
-    private void buildRelationships(List<RelationShip> relationships, Node node, DrlContext context) {
-        relationships.forEach(relationship -> 
-            buildRelationShip(context.getDrlBuilder(), relationship, node, context));
-    }
-    
-    /**
-     * 构建条件判断语句
-     */
-    private void buildConditionStatement(List<RelationShip> relationships, Node node, StringBuilder drlBuilder) {
-        drlBuilder.append("       if (");
         
         IntStream.range(0, relationships.size()).forEach(i -> {
             RelationShip relationship = relationships.get(i);
             String nodeIdStr = buildNodeId(node.getId(), relationship.getRelationshipNo());
-            
-            drlBuilder.append("flowContext.get(\"").append(nodeIdStr).append("\")");
-            
-            // 添加关系运算符
+
+            drlBuilder.append("(boolean)flowContext.get(\"").append(nodeIdStr).append("\")");
+
+            // 添加组内关系运算符
             if (i < relationships.size() - 1) {
-                appendRelationOperator(drlBuilder, relationship.getRelationOperator());
+                String relationOperator = relationship.getRelationOperator() != null ? 
+                                         relationship.getRelationOperator() : "AND";
+                appendRelationOperator(drlBuilder, relationOperator);
             }
         });
-        
-        drlBuilder.append("){\n");
     }
-    
+
+    /**
+     * 构建所有关系
+     */
+    private void buildRelationships(List<RelationShip> relationships, Node node, DrlContext context) {
+        if (relationships != null) {
+            relationships.forEach(relationship ->
+                buildRelationShip(context.getDrlBuilder(), relationship, node, context));
+        }
+    }
+
     /**
      * 添加关系运算符
      */
@@ -127,29 +144,22 @@ public class RuleNodeProcessor extends AbstractNodeProcessor {
             } else if ("OR".equals(relationOperator)) {
                 drlBuilder.append(" || ");
             }
+        } else {
+            // 默认使用AND
+            drlBuilder.append(" && ");
         }
     }
-    
-    /**
-     * 添加else分支
-     */
-    private void addElseBranch(StringBuilder drlBuilder) {
-        drlBuilder.append("       } else {\n");
-        drlBuilder.append("       // 条件不满足，直接返回\n");
-        drlBuilder.append("       return;\n");
-        drlBuilder.append("       }\n");
-    }
-    
+
     /**
      * 构建节点ID
      */
     private String buildNodeId(String nodeId, String relationshipNo) {
         if (Objects.nonNull(relationshipNo)) {
-            return nodeId.concat("_" + relationshipNo);
+            return nodeId.concat("_" + relationshipNo).replaceAll("-", "_");
         }
         return nodeId;
     }
-    
+
     /**
      * 构建关系的DRL代码
      */
@@ -161,34 +171,33 @@ public class RuleNodeProcessor extends AbstractNodeProcessor {
         String operatorValueType = relationShip.getOperatorValueType();
         String variableNum = relationShip.getVariableNo();
         String variableNo = getContextValue(context, variableNum);
-        
+
         // 生成操作注释
         drlBuilder.append("        // 操作: ").append(operator).append("\n");
-        
+
         // 构建节点ID
         String nodeIdStr = buildNodeId(node.getId(), relationShip.getRelationshipNo());
-        
+
         // 生成计算操作代码
-        drlBuilder.append("        Object ").append(nodeIdStr).append("=");
+        drlBuilder.append("        boolean ").append(nodeIdStr).append("=(boolean)");
         drlBuilder.append("VariableUtils.performOperation(flowContext, \"")
                 .append(variableNo).append("\", \"")
                 .append(operator).append("\", \"")
                 .append(operatorValue).append("\", \"")
                 .append(operatorValueType).append("\")")
                 .append(";\n");
-        
+
         // 将结果放入上下文
         drlBuilder.append("        flowContext.put(\"").append(nodeIdStr).append("\", ");
         drlBuilder.append(nodeIdStr);
         drlBuilder.append(");\n");
-        
+
         // 生成日志代码
-        drlBuilder.append("        System.out.println(\"变量计算结果");
-        drlBuilder.append(nodeIdStr).append("_result:\"+");
+        drlBuilder.append("        System.out.println(\"变量计算结果 ");
+        drlBuilder.append(nodeIdStr).append("_result: \"+");
         drlBuilder.append(nodeIdStr).append(");\n");
     }
 
-    
     @Override
     public String getNodeType() {
         return NodeType.RULE.getType();

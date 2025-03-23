@@ -1,0 +1,654 @@
+{
+  "nodes": [
+    {
+      "id": "nodes_hCGGVgXZ6-X6n3bHrMTaE",
+      "type": "assign",
+      "properties": {
+        "nodeVariableList": [
+          {
+            "name": "赠送商品积分",
+            "type": "normal",
+            "variableNo": "e51ac426-e2f1-4b62-818d-64380edb5bb3",
+            "variableType": 0,
+            "data": {
+              "id": 183,
+              "status": 0,
+              "gmt_create": "2025-03-23 13:12:53.000",
+              "gmt_update": "2025-03-23 13:12:53.000",
+              "create_by": "申素聪",
+              "update_by": "申素聪",
+              "version": 0,
+              "extend": null,
+              "name": "赠送商品积分",
+              "description": "",
+              "expression_tree_json": "{\"type\":\"FUNC\",\"code\":\"SET_RESULT\",\"params\":[]}",
+              "type": 0,
+              "rule_no": null,
+              "variable_no": "e51ac426-e2f1-4b62-818d-64380edb5bb3",
+              "easy_env": "prod",
+              "create_by_id": null,
+              "update_by_id": null,
+              "identify_code": "a8c7e65bb0f24297807841e1046f2065",
+              "result_type": null
+            }
+          }
+        ],
+        "relationShipGroupList": [
+          {
+            "relationShipList": [
+              {
+                "operator": "SET_RESULT",
+                "operatorValue": "nodes_bTN6HhKNXven6G21VxZ8Q",
+                "relationshipNo": 0,
+                "variableNo": "e51ac426-e2f1-4b62-818d-64380edb5bb3",
+                "operatorValueType": "node",
+                "variableType": "nodeVariable",
+                "desc": ""
+              }
+            ]
+          }
+        ],
+        "relationLine": false
+      },
+      "position": {
+        "x": 600,
+        "y": 60
+      },
+      "data": {
+        "key": "ASSIGNS",
+        "type": 5,
+        "dataType": "assign",
+        "name": "赋值1",
+        "backgroundImage": "https://gjscrm-1256038144.cos.ap-beijing.myqcloud.com/amisUploadfile/1690868914104.png",
+        "disabled": false,
+        "group_id": 4,
+        "group_name": "数据处理",
+        "warn": false,
+        "errorInfo": ""
+      }
+    },
+    {
+      "id": "nodes_S17p-aQhCzuUCo0laSjWi",
+      "type": "rule",
+      "properties": {
+        "nodeVariableList": [
+          {
+            "name": "积分_下单门店",
+            "type": "normal",
+            "variableNo": "0965b178-a5d3-410b-a3b4-04c221a1b457",
+            "variableType": 1,
+            "data": {
+              "id": 181,
+              "status": 0,
+              "gmt_create": "2025-03-05 15:46:27.000",
+              "gmt_update": "2025-03-05 15:46:27.000",
+              "create_by": "申素聪",
+              "update_by": "申素聪",
+              "version": 0,
+              "extend": null,
+              "name": "积分_下单门店",
+              "description": "",
+              "expression_tree_json": "{\"type\":\"FUNC\",\"code\":\"SET_RESULT\",\"params\":[{\"type\":\"PARAM\",\"code\":\"$.storeId\",\"showText\":\"param\"}]}",
+              "type": 1,
+              "rule_no": null,
+              "variable_no": "0965b178-a5d3-410b-a3b4-04c221a1b457",
+              "easy_env": "prod",
+              "create_by_id": null,
+              "update_by_id": null,
+              "identify_code": "6999beac3e8a4f588a10ae78cb14b36a",
+              "result_type": null
+            }
+          },
+          {
+            "name": "赠送商品积分",
+            "type": "normal",
+            "variableNo": "e51ac426-e2f1-4b62-818d-64380edb5bb3",
+            "variableType": 0,
+            "data": {
+              "id": 183,
+              "status": 0,
+              "gmt_create": "2025-03-23 13:12:53.000",
+              "gmt_update": "2025-03-23 13:12:53.000",
+              "create_by": "申素聪",
+              "update_by": "申素聪",
+              "version": 0,
+              "extend": null,
+              "name": "赠送商品积分",
+              "description": "",
+              "expression_tree_json": "{\"type\":\"FUNC\",\"code\":\"SET_RESULT\",\"params\":[]}",
+              "type": 0,
+              "rule_no": null,
+              "variable_no": "e51ac426-e2f1-4b62-818d-64380edb5bb3",
+              "easy_env": "prod",
+              "create_by_id": null,
+              "update_by_id": null,
+              "identify_code": "a8c7e65bb0f24297807841e1046f2065",
+              "result_type": null
+            }
+          }
+        ],
+        "relationShipGroupList": [
+          {
+            "index": 0,
+            "operator": "AND",
+            "relationShipList": [
+              {
+                "relationOperator": null,
+                "operator": "EQ",
+                "operatorValue": "99999",
+                "relationshipNo": 1,
+                "variableNo": "0965b178-a5d3-410b-a3b4-04c221a1b457",
+                "operatorValueType": "data"
+              }
+            ]
+          },
+          {
+            "index": 1,
+            "operator": "AND",
+            "relationShipList": [
+              {
+                "relationOperator": null,
+                "operator": "GE",
+                "operatorValue": "200",
+                "relationshipNo": 2,
+                "variableNo": "e51ac426-e2f1-4b62-818d-64380edb5bb3",
+                "operatorValueType": "data"
+              }
+            ]
+          }
+        ],
+        "relationLine": true
+      },
+      "position": {
+        "x": 760,
+        "y": 60
+      },
+      "data": {
+        "key": "RULES",
+        "type": 3,
+        "dataType": "rule",
+        "name": "规则",
+        "backgroundImage": "https://gjscrm-1256038144.cos.ap-beijing.myqcloud.com/amisUploadfile/1690869366305.png",
+        "disabled": false,
+        "group_id": 4,
+        "group_name": "数据处理",
+        "warn": false,
+        "errorInfo": ""
+      }
+    },
+    {
+      "id": "nodes_irFaqfnsihXN2IMPjUY3-",
+      "type": "end",
+      "properties": {
+        "nodeVariableList": [
+
+        ],
+        "relationShipGroupList": [
+
+        ],
+        "relationLine": false,
+        "resultSettingList": [
+          {
+            "key": "userFund",
+            "remark": "",
+            "type": "requestParams",
+            "value": "$.userFund"
+          },
+          {
+            "key": "orderAmt",
+            "remark": "",
+            "type": "requestParams",
+            "value": "$.orderAmt"
+          },
+          {
+            "key": "prizeFund",
+            "remark": "",
+            "type": "nodeVariable",
+            "value": "e51ac426-e2f1-4b62-818d-64380edb5bb3"
+          }
+        ]
+      },
+      "position": {
+        "x": 920,
+        "y": 160
+      },
+      "data": {
+        "key": "END",
+        "type": 1,
+        "dataType": "end",
+        "name": "结束",
+        "backgroundImage": "https://gjscrm-1256038144.cos.ap-beijing.myqcloud.com/amisUploadfile/1690868222989.png",
+        "disabled": false,
+        "group_id": 3,
+        "group_name": "基础节点",
+        "warn": false,
+        "errorInfo": ""
+      }
+    },
+    {
+      "id": "nodes_oGo62G1_0Te9WnM78IAlk",
+      "type": "assign",
+      "properties": {
+        "nodeVariableList": [
+          {
+            "name": "赠送商品积分",
+            "type": "normal",
+            "variableNo": "e51ac426-e2f1-4b62-818d-64380edb5bb3",
+            "variableType": 0,
+            "data": {
+              "id": 183,
+              "status": 0,
+              "gmt_create": "2025-03-23 13:12:53.000",
+              "gmt_update": "2025-03-23 13:12:53.000",
+              "create_by": "申素聪",
+              "update_by": "申素聪",
+              "version": 0,
+              "extend": null,
+              "name": "赠送商品积分",
+              "description": "",
+              "expression_tree_json": "{\"type\":\"FUNC\",\"code\":\"SET_RESULT\",\"params\":[]}",
+              "type": 0,
+              "rule_no": null,
+              "variable_no": "e51ac426-e2f1-4b62-818d-64380edb5bb3",
+              "easy_env": "prod",
+              "create_by_id": null,
+              "update_by_id": null,
+              "identify_code": "a8c7e65bb0f24297807841e1046f2065",
+              "result_type": null
+            }
+          }
+        ],
+        "relationShipGroupList": [
+          {
+            "relationShipList": [
+              {
+                "operator": "SET_RESULT",
+                "operatorValue": "0",
+                "relationshipNo": 0,
+                "variableNo": "e51ac426-e2f1-4b62-818d-64380edb5bb3",
+                "operatorValueType": "data",
+                "variableType": "nodeVariable",
+                "desc": ""
+              }
+            ]
+          }
+        ],
+        "relationLine": false
+      },
+      "position": {
+        "x": 440,
+        "y": 160
+      },
+      "data": {
+        "key": "ASSIGNS",
+        "type": 5,
+        "dataType": "assign",
+        "name": "赋值2",
+        "backgroundImage": "https://gjscrm-1256038144.cos.ap-beijing.myqcloud.com/amisUploadfile/1690868914104.png",
+        "disabled": false,
+        "group_id": 4,
+        "group_name": "数据处理",
+        "warn": false,
+        "errorInfo": ""
+      }
+    },
+    {
+      "id": "nodes_bTN6HhKNXven6G21VxZ8Q",
+      "type": "compute",
+      "properties": {
+        "nodeVariableList": [
+          {
+            "name": "积分_用户积分",
+            "type": "normal",
+            "variableNo": "a68e8ebd-3024-42d9-bbb9-14dac635e8fa",
+            "variableType": 1,
+            "data": {
+              "id": 180,
+              "status": 0,
+              "gmt_create": "2025-03-05 15:45:43.000",
+              "gmt_update": "2025-03-05 15:45:43.000",
+              "create_by": "申素聪",
+              "update_by": "申素聪",
+              "version": 0,
+              "extend": null,
+              "name": "积分_用户积分",
+              "description": "",
+              "expression_tree_json": "{\"type\":\"FUNC\",\"code\":\"SET_RESULT\",\"params\":[{\"type\":\"PARAM\",\"code\":\"$.userFund\",\"showText\":\"param\"}]}",
+              "type": 1,
+              "rule_no": null,
+              "variable_no": "a68e8ebd-3024-42d9-bbb9-14dac635e8fa",
+              "easy_env": "prod",
+              "create_by_id": null,
+              "update_by_id": null,
+              "identify_code": "a19de179214045f3bbe611e674f66089",
+              "result_type": null
+            }
+          },
+          {
+            "name": "积分_下单金额",
+            "type": "normal",
+            "variableNo": "b6ef56c0-003a-4518-95d8-b93c927be38f",
+            "variableType": 1,
+            "data": {
+              "id": 179,
+              "status": 0,
+              "gmt_create": "2025-03-05 15:43:56.000",
+              "gmt_update": "2025-03-05 15:43:56.000",
+              "create_by": "申素聪",
+              "update_by": "申素聪",
+              "version": 0,
+              "extend": null,
+              "name": "积分_下单金额",
+              "description": "",
+              "expression_tree_json": "{\"type\":\"FUNC\",\"code\":\"SET_RESULT\",\"params\":[{\"type\":\"PARAM\",\"code\":\"$.orderAmt\",\"showText\":\"param\"}]}",
+              "type": 1,
+              "rule_no": null,
+              "variable_no": "b6ef56c0-003a-4518-95d8-b93c927be38f",
+              "easy_env": "prod",
+              "create_by_id": null,
+              "update_by_id": null,
+              "identify_code": "6fe46f59ca484963bc8dae5c2462227d",
+              "result_type": null
+            }
+          }
+        ],
+        "relationShipGroupList": [
+          {
+            "relationShipList": [
+              {
+                "operator": "ADD",
+                "operatorValue": "b6ef56c0-003a-4518-95d8-b93c927be38f",
+                "relationshipNo": 0,
+                "variableNo": "a68e8ebd-3024-42d9-bbb9-14dac635e8fa",
+                "operatorValueType": "var"
+              }
+            ]
+          }
+        ],
+        "relationLine": false
+      },
+      "position": {
+        "x": 440,
+        "y": 60
+      },
+      "data": {
+        "key": "CALCULATE",
+        "type": 4,
+        "dataType": "compute",
+        "name": "计算",
+        "backgroundImage": "https://gjscrm-1256038144.cos.ap-beijing.myqcloud.com/amisUploadfile/1690868936152.png",
+        "disabled": false,
+        "group_id": 4,
+        "group_name": "数据处理",
+        "warn": false,
+        "errorInfo": ""
+      }
+    },
+    {
+      "id": "nodes_2qQuAcsOmv5286BwapaMi",
+      "type": "judge",
+      "properties": {
+        "nodeVariableList": [
+          {
+            "name": "积分_下单金额",
+            "type": "normal",
+            "variableNo": "b6ef56c0-003a-4518-95d8-b93c927be38f",
+            "variableType": 1,
+            "data": {
+              "id": 179,
+              "status": 0,
+              "gmt_create": "2025-03-05 15:43:56.000",
+              "gmt_update": "2025-03-05 15:43:56.000",
+              "create_by": "申素聪",
+              "update_by": "申素聪",
+              "version": 0,
+              "extend": null,
+              "name": "积分_下单金额",
+              "description": "",
+              "expression_tree_json": "{\"type\":\"FUNC\",\"code\":\"SET_RESULT\",\"params\":[{\"type\":\"PARAM\",\"code\":\"$.orderAmt\",\"showText\":\"param\"}]}",
+              "type": 1,
+              "rule_no": null,
+              "variable_no": "b6ef56c0-003a-4518-95d8-b93c927be38f",
+              "easy_env": "prod",
+              "create_by_id": null,
+              "update_by_id": null,
+              "identify_code": "6fe46f59ca484963bc8dae5c2462227d",
+              "result_type": null
+            }
+          }
+        ],
+        "relationShipGroupList": [
+          {
+            "relationShipList": [
+              {
+                "operator": "GE",
+                "operatorValue": "10",
+                "relationshipNo": 1,
+                "variableNo": "b6ef56c0-003a-4518-95d8-b93c927be38f",
+                "operatorValueType": "data"
+              },
+              {
+                "operator": "LT",
+                "operatorValue": "10",
+                "relationshipNo": 2,
+                "variableNo": "b6ef56c0-003a-4518-95d8-b93c927be38f",
+                "operatorValueType": "data"
+              }
+            ]
+          }
+        ],
+        "relationLine": true
+      },
+      "position": {
+        "x": 260,
+        "y": 120
+      },
+      "data": {
+        "key": "DETERMINE",
+        "type": 2,
+        "dataType": "judge",
+        "name": "判断",
+        "backgroundImage": "https://gjscrm-1256038144.cos.ap-beijing.myqcloud.com/amisUploadfile/1690868703337.png",
+        "disabled": false,
+        "group_id": 4,
+        "group_name": "数据处理",
+        "warn": false,
+        "errorInfo": ""
+      }
+    },
+    {
+      "id": "nodes_et71_UmeQh4b4JTZc6ZCC",
+      "type": "start",
+      "properties": {
+        "nodeVariableList": [
+
+        ],
+        "relationShipGroupList": [
+
+        ],
+        "relationLine": false
+      },
+      "position": {
+        "x": 80,
+        "y": 120
+      },
+      "data": {
+        "key": "START",
+        "type": 0,
+        "dataType": "start",
+        "name": "开始",
+        "backgroundImage": "https://gjscrm-1256038144.cos.ap-beijing.myqcloud.com/amisUploadfile/1690868186929.png",
+        "disabled": false,
+        "group_id": 3,
+        "group_name": "基础节点",
+        "warn": false,
+        "errorInfo": ""
+      }
+    }
+  ],
+  "edges": [
+    {
+      "style": {
+        "strokeWidth": 3,
+        "stroke": "#333"
+      },
+      "type": "custom",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#333"
+      },
+      "source": "nodes_et71_UmeQh4b4JTZc6ZCC",
+      "sourceHandle": null,
+      "target": "nodes_2qQuAcsOmv5286BwapaMi",
+      "targetHandle": null,
+      "id": "reactflow__edge-nodes_et71_UmeQh4b4JTZc6ZCC-nodes_2qQuAcsOmv5286BwapaMi",
+      "selected": false,
+      "sort": 0,
+      "properties": {
+        "type": "common",
+        "decisionCase": "",
+        "id": 0
+      }
+    },
+    {
+      "style": {
+        "strokeWidth": 3,
+        "stroke": "#333"
+      },
+      "type": "custom",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#333"
+      },
+      "source": "nodes_2qQuAcsOmv5286BwapaMi",
+      "sourceHandle": null,
+      "target": "nodes_bTN6HhKNXven6G21VxZ8Q",
+      "targetHandle": null,
+      "id": "reactflow__edge-nodes_2qQuAcsOmv5286BwapaMi-nodes_bTN6HhKNXven6G21VxZ8Q",
+      "selected": false,
+      "sort": 0,
+      "label": 1,
+      "properties": {
+        "type": "common",
+        "decisionCase": "",
+        "id": 1
+      }
+    },
+    {
+      "style": {
+        "strokeWidth": 3,
+        "stroke": "#333"
+      },
+      "type": "custom",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#333"
+      },
+      "source": "nodes_2qQuAcsOmv5286BwapaMi",
+      "sourceHandle": null,
+      "target": "nodes_oGo62G1_0Te9WnM78IAlk",
+      "targetHandle": null,
+      "id": "reactflow__edge-nodes_2qQuAcsOmv5286BwapaMi-nodes_oGo62G1_0Te9WnM78IAlk",
+      "selected": false,
+      "sort": 0,
+      "label": 2,
+      "properties": {
+        "type": "common",
+        "decisionCase": "",
+        "id": 2
+      }
+    },
+    {
+      "style": {
+        "strokeWidth": 3,
+        "stroke": "#333"
+      },
+      "type": "custom",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#333"
+      },
+      "source": "nodes_bTN6HhKNXven6G21VxZ8Q",
+      "sourceHandle": null,
+      "target": "nodes_hCGGVgXZ6-X6n3bHrMTaE",
+      "targetHandle": null,
+      "id": "reactflow__edge-nodes_bTN6HhKNXven6G21VxZ8Q-nodes_hCGGVgXZ6-X6n3bHrMTaE",
+      "selected": false,
+      "sort": 0,
+      "properties": {
+        "type": "common",
+        "decisionCase": "",
+        "id": 3
+      }
+    },
+    {
+      "style": {
+        "strokeWidth": 3,
+        "stroke": "#333"
+      },
+      "type": "custom",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#333"
+      },
+      "source": "nodes_hCGGVgXZ6-X6n3bHrMTaE",
+      "sourceHandle": null,
+      "target": "nodes_S17p-aQhCzuUCo0laSjWi",
+      "targetHandle": null,
+      "id": "reactflow__edge-nodes_hCGGVgXZ6-X6n3bHrMTaE-nodes_S17p-aQhCzuUCo0laSjWi",
+      "selected": false,
+      "sort": 0,
+      "properties": {
+        "type": "common",
+        "decisionCase": "",
+        "id": 4
+      }
+    },
+    {
+      "style": {
+        "strokeWidth": 3,
+        "stroke": "#333"
+      },
+      "type": "custom",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#333"
+      },
+      "source": "nodes_oGo62G1_0Te9WnM78IAlk",
+      "sourceHandle": null,
+      "target": "nodes_irFaqfnsihXN2IMPjUY3-",
+      "targetHandle": null,
+      "id": "reactflow__edge-nodes_oGo62G1_0Te9WnM78IAlk-nodes_irFaqfnsihXN2IMPjUY3-",
+      "selected": false,
+      "sort": 0,
+      "properties": {
+        "type": "common",
+        "decisionCase": "",
+        "id": 5
+      }
+    },
+    {
+      "style": {
+        "strokeWidth": 3,
+        "stroke": "#333"
+      },
+      "type": "custom",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "color": "#333"
+      },
+      "source": "nodes_S17p-aQhCzuUCo0laSjWi",
+      "sourceHandle": null,
+      "target": "nodes_irFaqfnsihXN2IMPjUY3-",
+      "targetHandle": null,
+      "id": "reactflow__edge-nodes_S17p-aQhCzuUCo0laSjWi-nodes_irFaqfnsihXN2IMPjUY3-",
+      "selected": false,
+      "sort": 0,
+      "properties": {
+        "type": "common",
+        "decisionCase": "",
+        "id": 6
+      }
+    }
+  ]
+}

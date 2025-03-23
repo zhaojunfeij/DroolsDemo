@@ -84,7 +84,7 @@ public class DrlContext {
     public void initDefaultVariableMap() {
         variableMap.put("a68e8ebd-3024-42d9-bbb9-14dac635e8fa", "userFund");
         variableMap.put("b6ef56c0-003a-4518-95d8-b93c927be38f", "orderAmt");
-        variableMap.put("f8335c59-b1ee-4d50-8c64-5877e555a213", "storeId");
+        variableMap.put("0965b178-a5d3-410b-a3b4-04c221a1b457", "storeId");
         variableMap.put("220db748-9fd9-405e-83a5-c24fb5de5f13", "businessId");
         variableMap.put("154782fd-71a6-4a65-889e-a5cb2101c1c1", "weComFriend");
     }

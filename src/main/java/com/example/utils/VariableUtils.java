@@ -166,11 +166,7 @@ public class VariableUtils {
 
         if ("data".equals(operatorValueType)) {
             // 直接使用值
-            try {
-                value = new BigDecimal(operatorValue);
-            } catch (NumberFormatException e) {
-                value = operatorValue;
-            }
+            value = operatorValue;
         } else {
             // 使用另一个变量的值
             value = context.get(operatorValue);
@@ -181,11 +177,29 @@ public class VariableUtils {
         }
 
         switch (operator) {
+            case "EQ":
+                try {
+                    result = variable.toString().equals(value);
+                } catch (Exception e) {
+                    // 如果不是数字，当作字符串拼接
+                    System.err.println("无法执行相等操作");
+                }
+                break;
+            case "GE":
+                try {
+                    BigDecimal num1 = new BigDecimal(variable.toString());
+                    BigDecimal num2 = new BigDecimal(value.toString());
+                    result = num1.compareTo(num2) > 0;
+                } catch (Exception e) {
+                    // 如果不是数字，当作字符串拼接
+                    System.err.println("无法执行大于操作，非数值类型");
+                }
+                break;
             case "ADD":
                 try {
                     BigDecimal num1 = new BigDecimal(variable.toString());
                     BigDecimal num2 = new BigDecimal(value.toString());
-                    result=num1.add(num2);
+                    result = num1.add(num2);
                     //context.put(variableNo, num1.add(num2));
                 } catch (NumberFormatException e) {
                     // 如果不是数字，当作字符串拼接
@@ -197,7 +211,7 @@ public class VariableUtils {
                 try {
                     BigDecimal num1 = new BigDecimal(variable.toString());
                     BigDecimal num2 = new BigDecimal(value.toString());
-                    result=num1.subtract(num2);
+                    result = num1.subtract(num2);
                     //context.put(variableNo, num1.subtract(num2));
                 } catch (NumberFormatException e) {
                     System.err.println("无法执行减法操作，非数值类型");
@@ -207,7 +221,7 @@ public class VariableUtils {
                 try {
                     BigDecimal num1 = new BigDecimal(variable.toString());
                     BigDecimal num2 = new BigDecimal(value.toString());
-                    result=num1.multiply(num2);
+                    result = num1.multiply(num2);
                     //context.put(variableNo, num1.multiply(num2));
                 } catch (NumberFormatException e) {
                     System.err.println("无法执行乘法操作，非数值类型");
@@ -217,7 +231,7 @@ public class VariableUtils {
                 try {
                     BigDecimal num1 = new BigDecimal(variable.toString());
                     BigDecimal num2 = new BigDecimal(value.toString());
-                    result=num1.divide(num2);
+                    result = num1.divide(num2);
                     //context.put(variableNo, num1.divide(num2));
                 } catch (NumberFormatException e) {
                     System.err.println("无法执行除法操作，非数值类型");
@@ -226,7 +240,7 @@ public class VariableUtils {
             case "IN":
                 if (value instanceof Collection) {
                     boolean isIn = ((Collection<?>) value).contains(variable);
-                    result= isIn;
+                    result = isIn;
                     //context.put(operatorValue + "_" + operator, isIn);
                 } else {
                     throw new IllegalArgumentException("For 'IN' operation, the right operand must be a collection.");
@@ -235,7 +249,7 @@ public class VariableUtils {
             case "NOT_IN":
                 if (value instanceof Collection) {
                     boolean isNotIn = !((Collection<?>) value).contains(variable);
-                    result= isNotIn;
+                    result = isNotIn;
                     //context.put(operatorValue + "_" + operator, isNotIn);
                 } else {
                     throw new IllegalArgumentException("For 'NOT_IN' operation, the right operand must be a collection.");
