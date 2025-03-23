@@ -2,17 +2,70 @@ package com.example.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 
 /**
  * 变量工具类 - 用于处理规则中的变量操作
+ * 支持数值、字符串、集合等多种数据类型的比较和运算
  */
 public class VariableUtils {
 
+    private static final Logger log = LoggerFactory.getLogger(VariableUtils.class);
     private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    // 定义数值比较操作
+    private static final Map<String, BiPredicate<BigDecimal, BigDecimal>> NUMBER_COMPARATORS;
+    
+    // 定义数值运算操作
+    private static final Map<String, BiFunction<BigDecimal, BigDecimal, BigDecimal>> NUMBER_OPERATIONS;
+    
+    // 定义字符串比较操作
+    private static final Map<String, BiPredicate<String, String>> STRING_COMPARATORS;
+    
+    static {
+        // 初始化数值比较器
+        Map<String, BiPredicate<BigDecimal, BigDecimal>> numberComparators = new HashMap<>();
+        numberComparators.put("EQ", BigDecimal::equals);
+        numberComparators.put("NE", (a, b) -> !a.equals(b));
+        numberComparators.put("GT", (a, b) -> a.compareTo(b) > 0);
+        numberComparators.put("GE", (a, b) -> a.compareTo(b) >= 0);
+        numberComparators.put("LT", (a, b) -> a.compareTo(b) < 0);
+        numberComparators.put("LE", (a, b) -> a.compareTo(b) <= 0);
+        NUMBER_COMPARATORS = Collections.unmodifiableMap(numberComparators);
+        
+        // 初始化数值运算操作
+        Map<String, BiFunction<BigDecimal, BigDecimal, BigDecimal>> numberOperations = new HashMap<>();
+        numberOperations.put("ADD", BigDecimal::add);
+        numberOperations.put("SUBTRACT", BigDecimal::subtract);
+        numberOperations.put("MULTIPLY", BigDecimal::multiply);
+        numberOperations.put("DIVIDE", (a, b) -> {
+            if (b.compareTo(BigDecimal.ZERO) == 0) {
+                throw new ArithmeticException("除数不能为零");
+            }
+            return a.divide(b, 10, RoundingMode.HALF_UP);
+        });
+        NUMBER_OPERATIONS = Collections.unmodifiableMap(numberOperations);
+        
+        // 初始化字符串比较操作
+        Map<String, BiPredicate<String, String>> stringComparators = new HashMap<>();
+        stringComparators.put("EQ", String::equals);
+        stringComparators.put("NE", (a, b) -> !a.equals(b));
+        stringComparators.put("CONTAINS", String::contains);
+        stringComparators.put("STARTS_WITH", String::startsWith);
+        stringComparators.put("ENDS_WITH", String::endsWith);
+        STRING_COMPARATORS = Collections.unmodifiableMap(stringComparators);
+    }
 
     /**
      * 获取变量值
@@ -22,240 +75,110 @@ public class VariableUtils {
     }
 
     /**
-     * 比较两个变量
-     */
-    public static boolean compareVariables(Map<String, Object> context, String variable1, String operator, String variable2) {
-        Object value1 = context.get(variable1);
-        Object value2 = context.get(variable2);
-
-        if (value1 == null || value2 == null) {
-            return false;
-        }
-
-        // 尝试转换为数值比较
-        try {
-            BigDecimal num1 = new BigDecimal(value1.toString());
-            BigDecimal num2 = new BigDecimal(value2.toString());
-
-            switch (operator) {
-                case "EQ":
-                    return num1.compareTo(num2) == 0;
-                case "NE":
-                    return num1.compareTo(num2) != 0;
-                case "GT":
-                    return num1.compareTo(num2) > 0;
-                case "GE":
-                    return num1.compareTo(num2) >= 0;
-                case "LT":
-                    return num1.compareTo(num2) < 0;
-                case "LE":
-                    return num1.compareTo(num2) <= 0;
-                case "ADD":
-                    return true; // 用于计算节点
-                default:
-                    return false;
-            }
-        } catch (NumberFormatException e) {
-            // 如果不是数值，按字符串比较
-            String str1 = value1.toString();
-            String str2 = value2.toString();
-
-            switch (operator) {
-                case "EQ":
-                    return str1.equals(str2);
-                case "NE":
-                    return !str1.equals(str2);
-                default:
-                    return false;
-            }
-        }
-    }
-
-    /**
      * 执行表达式
      */
     public static Object evaluateExpression(Map<String, Object> context, String expressionJson) {
         try {
             return ParamUtils.process(expressionJson, context);
-            //JsonNode expressionTree = objectMapper.readTree(expressionJson);
-            //return evaluateExpressionNode(expressionTree, context);
         } catch (Exception e) {
-            System.err.println("表达式计算错误: " + e.getMessage());
+            log.error("表达式计算错误: {}", e.getMessage(), e);
             return null;
         }
     }
 
     /**
-     * 递归计算表达式节点
+     * 执行变量操作 - 支持各种比较和计算操作
      */
-    private static Object evaluateExpressionNode(JsonNode node, Map<String, Object> context) {
-        if (node == null) {
-            return null;
-        }
+    public static Object performOperation(Map<String, Object> context, String variableNo, String operator, 
+                                         String operatorValue, String operatorValueType) {
+        Object variable = Optional.ofNullable(context.get(variableNo)).orElse(null);
+        Object value = "data".equals(operatorValueType) ? operatorValue : context.get(operatorValue);
 
-        String type = node.get("type").asText();
-
-        switch (type) {
-            case "FUNC":
-                return evaluateFunction(node, context);
-            case "PARAM":
-                return evaluateParameter(node, context);
-            case "FIXED":
-                return node.get("value").asText();
-            default:
-                return null;
-        }
-    }
-
-    /**
-     * 计算函数表达式
-     */
-    private static Object evaluateFunction(JsonNode node, Map<String, Object> context) {
-        String funcCode = node.get("code").asText();
-        JsonNode params = node.get("params");
-
-        switch (funcCode) {
-            case "SET_RESULT":
-                if (params.size() > 0) {
-                    return evaluateExpressionNode(params.get(0), context);
-                }
-                return null;
-            case "ADD":
-                BigDecimal result = BigDecimal.ZERO;
-                for (JsonNode param : params) {
-                    Object value = evaluateExpressionNode(param, context);
-                    if (value != null) {
-                        try {
-                            result = result.add(new BigDecimal(value.toString()));
-                        } catch (NumberFormatException e) {
-                            System.err.println("无法将 " + value + " 转换为数字进行加法运算");
-                        }
-                    }
-                }
-                return result;
-            // 可以添加更多函数支持
-            default:
-                System.err.println("不支持的函数: " + funcCode);
-                return null;
-        }
-    }
-
-    /**
-     * 计算参数引用
-     */
-    private static Object evaluateParameter(JsonNode node, Map<String, Object> context) {
-        String paramCode = node.get("code").asText();
-
-        // 处理 $.xxx 格式的参数引用
-        if (paramCode.startsWith("$.")) {
-            String paramName = paramCode.substring(2);
-            return context.get(paramName);
-        }
-
-        // 处理直接变量引用
-        return context.get(paramCode);
-    }
-
-    /**
-     * 执行操作
-     */
-    public static Object performOperation(Map<String, Object> context, String variableNo, String operator, String operatorValue, String operatorValueType) {
-        Object variable = context.get(variableNo);
-        Object value;
-        Object result = null;
-
-        if ("data".equals(operatorValueType)) {
-            // 直接使用值
-            value = operatorValue;
-        } else {
-            // 使用另一个变量的值
-            value = context.get(operatorValue);
-        }
-
+        // 处理空值情况
         if (variable == null || value == null) {
-            return value;
+            log.warn("操作数存在空值, 变量: {}, 值: {}", variable, value);
+            return operator.startsWith("N") || operator.equals("NOT_IN"); // 对于非/不包含操作，空值返回true
         }
 
-        switch (operator) {
-            case "EQ":
-                try {
-                    result = variable.toString().equals(value);
-                } catch (Exception e) {
-                    // 如果不是数字，当作字符串拼接
-                    System.err.println("无法执行相等操作");
-                }
-                break;
-            case "GE":
-                try {
-                    BigDecimal num1 = new BigDecimal(variable.toString());
-                    BigDecimal num2 = new BigDecimal(value.toString());
-                    result = num1.compareTo(num2) > 0;
-                } catch (Exception e) {
-                    // 如果不是数字，当作字符串拼接
-                    System.err.println("无法执行大于操作，非数值类型");
-                }
-                break;
-            case "ADD":
-                try {
-                    BigDecimal num1 = new BigDecimal(variable.toString());
-                    BigDecimal num2 = new BigDecimal(value.toString());
-                    result = num1.add(num2);
-                    //context.put(variableNo, num1.add(num2));
-                } catch (NumberFormatException e) {
-                    // 如果不是数字，当作字符串拼接
-                    System.err.println("无法执行加法操作，非数值类型");
-                }
-
-                break;
-            case "SUBTRACT":
-                try {
-                    BigDecimal num1 = new BigDecimal(variable.toString());
-                    BigDecimal num2 = new BigDecimal(value.toString());
-                    result = num1.subtract(num2);
-                    //context.put(variableNo, num1.subtract(num2));
-                } catch (NumberFormatException e) {
-                    System.err.println("无法执行减法操作，非数值类型");
-                }
-                break;
-            case "MULTIPLY":
-                try {
-                    BigDecimal num1 = new BigDecimal(variable.toString());
-                    BigDecimal num2 = new BigDecimal(value.toString());
-                    result = num1.multiply(num2);
-                    //context.put(variableNo, num1.multiply(num2));
-                } catch (NumberFormatException e) {
-                    System.err.println("无法执行乘法操作，非数值类型");
-                }
-                break;
-            case "DIVIDE":
-                try {
-                    BigDecimal num1 = new BigDecimal(variable.toString());
-                    BigDecimal num2 = new BigDecimal(value.toString());
-                    result = num1.divide(num2);
-                    //context.put(variableNo, num1.divide(num2));
-                } catch (NumberFormatException e) {
-                    System.err.println("无法执行除法操作，非数值类型");
-                }
-                break;
-            case "IN":
-                if (value instanceof Collection) {
-                    boolean isIn = ((Collection<?>) value).contains(variable);
-                    result = isIn;
-                    //context.put(operatorValue + "_" + operator, isIn);
-                } else {
-                    throw new IllegalArgumentException("For 'IN' operation, the right operand must be a collection.");
-                }
-                break;
-            case "NOT_IN":
-                if (value instanceof Collection) {
-                    boolean isNotIn = !((Collection<?>) value).contains(variable);
-                    result = isNotIn;
-                    //context.put(operatorValue + "_" + operator, isNotIn);
-                } else {
-                    throw new IllegalArgumentException("For 'NOT_IN' operation, the right operand must be a collection.");
-                }
-                break;
+        try {
+            // 尝试进行数值比较
+            if (NUMBER_COMPARATORS.containsKey(operator)) {
+                return compareAsNumbers(variable.toString(), value.toString(), operator);
+            }
+            
+            // 尝试进行数值运算
+            if (NUMBER_OPERATIONS.containsKey(operator)) {
+                return performNumberOperation(variable.toString(), value.toString(), operator);
+            }
+            
+            // 进行集合操作
+            if ("IN".equals(operator) || "NOT_IN".equals(operator)) {
+                return performCollectionOperation(variable, value, operator);
+            }
+            
+            // 进行字符串比较
+            if (STRING_COMPARATORS.containsKey(operator)) {
+                return compareAsStrings(variable.toString(), value.toString(), operator);
+            }
+            
+            // 不支持的操作
+            log.warn("不支持的操作: {}", operator);
+            return false;
+        } catch (Exception e) {
+            log.error("执行操作时发生错误, 操作: {}, 错误: {}", operator, e.getMessage(), e);
+            return false;
         }
-        return result;
+    }
+
+    /**
+     * 数值比较操作
+     */
+    private static Boolean compareAsNumbers(String val1, String val2, String operator) {
+        try {
+            BigDecimal num1 = new BigDecimal(val1);
+            BigDecimal num2 = new BigDecimal(val2);
+            
+            return NUMBER_COMPARATORS.getOrDefault(operator, (a, b) -> false).test(num1, num2);
+        } catch (NumberFormatException e) {
+            log.debug("无法作为数值比较，将尝试字符串比较");
+            return compareAsStrings(val1, val2, operator);
+        }
+    }
+
+    /**
+     * 字符串比较操作
+     */
+    private static Boolean compareAsStrings(String val1, String val2, String operator) {
+        return STRING_COMPARATORS.getOrDefault(operator, (a, b) -> false).test(val1, val2);
+    }
+
+    /**
+     * 数值运算操作
+     */
+    private static BigDecimal performNumberOperation(String val1, String val2, String operator) {
+        try {
+            BigDecimal num1 = new BigDecimal(val1);
+            BigDecimal num2 = new BigDecimal(val2);
+            
+            return NUMBER_OPERATIONS.getOrDefault(operator, (a, b) -> a).apply(num1, num2);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("无法将值转换为数字进行运算: " + val1 + ", " + val2);
+        }
+    }
+
+    /**
+     * 集合操作
+     */
+    private static Boolean performCollectionOperation(Object variable, Object collection, String operator) {
+        if (collection instanceof Collection) {
+            boolean contains = ((Collection<?>) collection).contains(variable);
+            return "IN".equals(operator) ? contains : !contains;
+        } else if (collection instanceof String && variable instanceof String) {
+            // 字符串包含检查
+            boolean contains = ((String) collection).contains((String) variable);
+            return "IN".equals(operator) ? contains : !contains;
+        }
+        
+        throw new IllegalArgumentException("集合操作要求操作数为集合类型");
     }
 }

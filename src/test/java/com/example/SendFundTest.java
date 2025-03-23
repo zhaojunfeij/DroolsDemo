@@ -39,7 +39,7 @@ public class SendFundTest {
         Map<String, Object> context = new HashMap<>();
         context.put("userFund", 100.5);
         context.put("orderAmt", 152.5);
-        context.put("storeId", 99999);
+        context.put("storeId", 9999);
         context = ruleService.executeRule(context, "send_fund_flow");
         System.out.println(JSON.toJSONString(context));
     }
