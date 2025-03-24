@@ -23,7 +23,7 @@ rule "send_fund_flow"
         flowContext.put("orderAmt", VariableUtils.evaluateExpression(flowContext, "{\"code\":\"setResult\",\"className\":\"logicFunctionService\",\"type\":\"FUNC\",\"params\":[{\"code\":\"$.orderAmt\",\"showText\":\"param\",\"type\":\"PARAM\"}]}"));
         System.out.println("变量取值结果orderAmt:"+flowContext.get("orderAmt"));
         // 变量: 积分_测试变量
-        flowContext.put("b6ef56c0-003a-4518-95d8-b93c927be38f2", VariableUtils.evaluateExpression(flowContext, "{\"code\":\"test\",\"className\":\"paramUtils\",\"type\":\"FUNC\",\"params\":[]}"));
+        flowContext.put("b6ef56c0-003a-4518-95d8-b93c927be38f2", VariableUtils.evaluateExpression(flowContext, "{\"code\":\"test\",\"className\":\"testBeanService\",\"type\":\"FUNC\",\"params\":[]}"));
         System.out.println("变量取值结果b6ef56c0-003a-4518-95d8-b93c927be38f2:"+flowContext.get("b6ef56c0-003a-4518-95d8-b93c927be38f2"));
         // 条件分支
         // 条件 1

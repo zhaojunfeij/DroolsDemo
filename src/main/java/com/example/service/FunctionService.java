@@ -39,7 +39,7 @@ public class FunctionService {
             FunctionInfo testInfo = new FunctionInfo();
             testInfo.setFunction_code("FUN_LOGIC_16989087308212");
             testInfo.setFunction_method_name("test");
-            testInfo.setFunction_class_name("ParamUtils");
+            testInfo.setFunction_class_name("testBeanService");
             FUNCTION_CODE_MAP.put("FUN_LOGIC_16989087308212", testInfo);
         } catch (Exception e) {
             log.error("初始化函数代码映射失败", e);
