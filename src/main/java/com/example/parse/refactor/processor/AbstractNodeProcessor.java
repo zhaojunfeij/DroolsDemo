@@ -42,6 +42,7 @@ public abstract class AbstractNodeProcessor implements NodeProcessor {
 
         // 2. 构建DRL代码
         StringBuilder drlBuilder = context.getDrlBuilder();
+        variable.setVariableField(getContextValue(context, variable.getVariableNo()));
         buildVariableCode(drlBuilder, variable);
 
         // 3. 添加日志输出
@@ -57,7 +58,7 @@ public abstract class AbstractNodeProcessor implements NodeProcessor {
 
         // 变量存入上下文
         drlBuilder.append("        flowContext.put(\"")
-                .append(variable.getVariableNo())
+                .append(variable.getVariableField())
                 .append("\", VariableUtils.evaluateExpression(flowContext, ")
                 .append(variable.getExpression())
                 .append("));\n");
@@ -68,9 +69,9 @@ public abstract class AbstractNodeProcessor implements NodeProcessor {
      */
     private void addVariableLog(StringBuilder drlBuilder, Variable variable) {
         drlBuilder.append("        System.out.println(\"变量取值结果")
-                .append(variable.getVariableNo())
+                .append(variable.getVariableField())
                 .append(":\"+flowContext.get(\"")
-                .append(variable.getVariableNo())
+                .append(variable.getVariableField())
                 .append("\"));\n");
     }
 

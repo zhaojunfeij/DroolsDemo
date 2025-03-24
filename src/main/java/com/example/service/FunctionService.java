@@ -1,17 +1,21 @@
 package com.example.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.example.model.FunctionResponse;
 import com.example.model.FunctionResponse.FunctionInfo;
-import com.example.utils.HttpUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -21,10 +25,15 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class FunctionService {
     private static final Logger log = LoggerFactory.getLogger(FunctionService.class);
-    private static final String FUNCTION_API_URL = "https://api-internal.gaojihealth.cn/nyuwa/api/intranet/mdd/325/rule_function/list?function_type=&function_attr=&page=1&perPage=100&filter=function_name%2Ccs%2C&function_name=";
+    
+    @Value("${function.api.url:https://api-internal.gaojihealth.cn/nyuwa/api/intranet/mdd/325/rule_function/list}")
+    private String functionApiUrl;
+    
+    @Autowired
+    private RestTemplate restTemplate;
     
     // 函数代码映射，键为functionCode，值为FunctionInfo对象
-    private static final Map<String, FunctionInfo> FUNCTION_CODE_MAP = new ConcurrentHashMap<>();
+    private final Map<String, FunctionInfo> functionCodeMap = new ConcurrentHashMap<>();
     
     /**
      * 服务启动时初始化函数代码映射
@@ -40,9 +49,11 @@ public class FunctionService {
             testInfo.setFunction_code("FUN_LOGIC_16989087308212");
             testInfo.setFunction_method_name("test");
             testInfo.setFunction_class_name("testBeanService");
-            FUNCTION_CODE_MAP.put("FUN_LOGIC_16989087308212", testInfo);
+            functionCodeMap.put("FUN_LOGIC_16989087308212", testInfo);
+            
+            log.info("函数代码映射初始化完成，共 {} 个函数", functionCodeMap.size());
         } catch (Exception e) {
-            log.error("初始化函数代码映射失败", e);
+            log.error("初始化函数代码映射失败: {}", e.getMessage());
         }
     }
     
@@ -50,29 +61,54 @@ public class FunctionService {
      * 获取函数代码映射
      */
     public Map<String, FunctionInfo> getFunctionCodeMap() {
-        return new HashMap<>(FUNCTION_CODE_MAP);
+        return new HashMap<>(functionCodeMap);
     }
     
     /**
      * 从API加载函数代码
      */
-    private void loadFunctionCodes() throws IOException {
-        log.info("开始从API加载函数代码映射");
-        String response = HttpUtils.get(FUNCTION_API_URL);
-        
-        FunctionResponse functionResponse = JSON.parseObject(response, FunctionResponse.class);
-        if (functionResponse != null && functionResponse.getStatus() != null && functionResponse.getStatus() == 0) {
-            // 更新缓存
-            if (functionResponse.getData() != null && functionResponse.getData().getRows() != null) {
-                for (FunctionInfo info : functionResponse.getData().getRows()) {
-                    FUNCTION_CODE_MAP.put(info.getFunction_code(), info);
-                }
-            }
+    public void loadFunctionCodes() {
+        try {
+            String url = functionApiUrl + "?function_type=&function_attr=&page=1&perPage=100&filter=function_name%2Ccs%2C&function_name=";
             
-            log.info("函数代码映射加载完成，共 {} 个函数", FUNCTION_CODE_MAP.size());
-        } else {
-            log.error("API请求失败：{}", functionResponse != null ? functionResponse.getMsg() : "无响应");
+            // 使用RestTemplate发送GET请求
+            ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+            
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                JSONObject jsonResponse = JSON.parseObject(response.getBody());
+                parseFunctionResponse(jsonResponse);
+                log.info("函数代码映射加载完成，共 {} 个函数", functionCodeMap.size());
+            } else {
+                log.error("API请求失败: 状态码 {}", response.getStatusCodeValue());
+            }
+        } catch (Exception e) {
+            log.error("加载函数代码映射失败: {}", e.getMessage());
         }
+    }
+    
+    /**
+     * 解析函数响应数据
+     * 采用函数式编程风格，简洁优雅地处理JSON数据
+     */
+    private void parseFunctionResponse(JSONObject jsonResponse) {
+        Map<String, FunctionInfo> newFunctionMap = new HashMap<>();
+        
+        Optional.ofNullable(jsonResponse)
+            .filter(json -> json.getInteger("status") != null && json.getInteger("status") == 0)
+            .map(json -> json.getJSONObject("data"))
+            .map(data -> data.getJSONArray("rows"))
+            .ifPresent(rows -> {
+                for (int i = 0; i < rows.size(); i++) {
+                    FunctionInfo info = rows.getObject(i, FunctionInfo.class);
+                    if (info != null && info.getFunction_code() != null) {
+                        newFunctionMap.put(info.getFunction_code(), info);
+                    }
+                }
+                
+                // 更新缓存
+                functionCodeMap.clear();
+                functionCodeMap.putAll(newFunctionMap);
+            });
     }
     
     /**
@@ -90,7 +126,7 @@ public class FunctionService {
             return false;
         }
         
-        FUNCTION_CODE_MAP.put(functionCode, functionInfo);
+        functionCodeMap.put(functionCode, functionInfo);
         log.info("动态添加函数代码映射：code={}, methodName={}, className={}", 
             functionCode, functionInfo.getFunction_method_name(), functionInfo.getFunction_class_name());
         return true;
@@ -116,7 +152,7 @@ public class FunctionService {
         info.setFunction_method_name(functionMethodName);
         info.setFunction_class_name(functionClassName);
         
-        FUNCTION_CODE_MAP.put(functionCode, info);
+        functionCodeMap.put(functionCode, info);
         log.info("动态添加函数代码映射：code={}, method={}, class={}", 
             functionCode, functionMethodName, functionClassName);
         return true;
@@ -147,10 +183,10 @@ public class FunctionService {
     /**
      * 手动刷新函数代码映射
      */
-    public void refreshFunctionCodes() throws IOException {
+    public void refreshFunctionCodes() {
         log.info("手动刷新函数代码映射");
         // 清空当前映射
-        FUNCTION_CODE_MAP.clear();
+        functionCodeMap.clear();
         // 重新加载
         loadFunctionCodes();
     }

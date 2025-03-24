@@ -2,6 +2,8 @@ package com.example.parse.refactor.converter;
 
 import com.example.model.Edge;
 import com.example.model.Node;
+import com.example.service.VariableService;
+import com.example.utils.SpringContextHolder;
 
 import java.util.HashMap;
 import java.util.List;
@@ -79,13 +81,41 @@ public class DrlContext {
     }
     
     /**
-     * 添加变量映射
+     * 初始化变量映射
+     * 从远程API动态加载变量信息
      */
     public void initDefaultVariableMap() {
-        variableMap.put("a68e8ebd-3024-42d9-bbb9-14dac635e8fa", "userFund");
-        variableMap.put("b6ef56c0-003a-4518-95d8-b93c927be38f", "orderAmt");
-        variableMap.put("0965b178-a5d3-410b-a3b4-04c221a1b457", "storeId");
-        variableMap.put("220db748-9fd9-405e-83a5-c24fb5de5f13", "businessId");
-        variableMap.put("154782fd-71a6-4a65-889e-a5cb2101c1c1", "weComFriend");
+        try {
+            // 通过SpringContextHolder获取VariableService
+            VariableService variableService = SpringContextHolder.getBean(VariableService.class);
+            
+            if (variableService != null) {
+                // 获取变量映射
+                Map<String, String> remoteVariableMap = variableService.getVariableMap();
+                
+                // 如果远程获取成功，使用远程数据
+                if (remoteVariableMap != null && !remoteVariableMap.isEmpty()) {
+                    this.variableMap.putAll(remoteVariableMap);
+                    return;
+                }
+            }
+            
+            // 如果获取失败，使用默认值
+            useDefaultVariableMap();
+        } catch (Exception e) {
+            // 异常处理，使用默认值
+            useDefaultVariableMap();
+        }
+    }
+    
+    /**
+     * 使用默认的变量映射
+     */
+    private void useDefaultVariableMap() {
+        this.variableMap.put("a68e8ebd-3024-42d9-bbb9-14dac635e8fa", "userFund");
+        this.variableMap.put("b6ef56c0-003a-4518-95d8-b93c927be38f", "orderAmt");
+        this.variableMap.put("0965b178-a5d3-410b-a3b4-04c221a1b457", "storeId");
+        this.variableMap.put("220db748-9fd9-405e-83a5-c24fb5de5f13", "businessId");
+        this.variableMap.put("154782fd-71a6-4a65-889e-a5cb2101c1c1", "weComFriend");
     }
 } 

@@ -20,6 +20,7 @@ public class Variable {
     private String methodName;
     private String beanName;
     private boolean isValid;
+    private String variableField;
 
     public Variable() {
         this.isValid = true;
@@ -79,6 +80,14 @@ public class Variable {
 
     public void setValid(boolean valid) {
         isValid = valid;
+    }
+
+    public String getVariableField() {
+        return variableField;
+    }
+
+    public void setVariableField(String variableField) {
+        this.variableField = variableField;
     }
 
     /**
