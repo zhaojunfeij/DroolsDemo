@@ -1,10 +1,12 @@
 package com.example.parse.refactor.processor;
 
+import com.alibaba.fastjson.JSONObject;
 import com.example.model.Func;
 import com.example.parse.refactor.converter.DrlContext;
 import com.example.model.Node;
 import com.example.model.Variable;
 import com.alibaba.fastjson.JSON;
+import com.example.model.FunctionResponse.FunctionInfo;
 import com.example.service.FunctionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
@@ -20,18 +22,18 @@ import java.util.function.Predicate;
  * 子类只需实现特定的处理逻辑，提高代码复用性和一致性
  */
 public abstract class AbstractNodeProcessor implements NodeProcessor {
-    
+
     @Autowired
     private FunctionService functionService;
-    
+
     /**
      * 获取函数代码映射
      * 从FunctionService动态获取，而非使用静态硬编码
      */
-    protected Map<String, String> getFunctionCodeMap() {
+    protected Map<String, FunctionInfo> getFunctionCodeMap() {
         return functionService.getFunctionCodeMap();
     }
-    
+
     /**
      * 处理节点中的变量
      * 构建变量定义和初始化的DRL代码
@@ -41,14 +43,14 @@ public abstract class AbstractNodeProcessor implements NodeProcessor {
         String variableName = variable.getName();
         String variableNum = variable.getVariableNo();
         String variableNo = getContextValue(context, variableNum);
-       // 处理表达式树或使用默认值
-        Optional<Object> expressionOpt = getExpressionValue(variable);
+        // 处理表达式树或使用默认值
+        Optional<String> expressionOpt = getExpressionValue(variable);
         if (!expressionOpt.isPresent()) {
             return;
         }
-        Object expressionJson = expressionOpt.get();
+        String expressionJson = expressionOpt.get();
 
-        Func func = JSON.parseObject(expressionJson.toString(), Func.class);
+        Func func = JSON.parseObject(expressionJson, Func.class);
 
         if ("SET_RESULT".equals(func.getCode()) && CollectionUtils.isEmpty(func.getParams())) {
             return;
@@ -60,12 +62,31 @@ public abstract class AbstractNodeProcessor implements NodeProcessor {
         drlBuilder.append("        flowContext.put(\"").append(variableNo).append("\", ");
 
         // 使用动态获取的函数代码映射
-        Map<String, String> functionCodeMap = getFunctionCodeMap();
-        String methodName = functionCodeMap.getOrDefault(func.getCode(), func.getCode());
-        
+        Map<String, FunctionInfo> functionCodeMap = getFunctionCodeMap();
+        FunctionInfo functionInfo = functionCodeMap.get(func.getCode());
+
+        String methodName = func.getCode();
+        String beanName = "";
+
+        if (functionInfo != null) {
+            methodName = functionInfo.getFunction_method_name();
+            // 将类名转换为Spring Bean名称
+            beanName = getBeanNameFromClassName(functionInfo.getFunction_class_name());
+        }
+
+        // 替换表达式中的函数代码为函数方法名，并添加类名
+        JSONObject modifiedExpression = JSON.parseObject(expressionJson);
+
+        // 在表达式中添加Bean名称信息
+        if (beanName != null && !beanName.isEmpty()) {
+            modifiedExpression.put("className", beanName);
+        }
+        String expression = modifiedExpression.toString().replaceAll(func.getCode(), methodName);
+        expression = expression.replace("\"", "\\\"");
+        expression = "\"" + expression + "\"";
         drlBuilder.append("VariableUtils.evaluateExpression(")
                 .append("flowContext, ")
-                .append(JSON.toJSONString(expressionJson).replaceAll(func.getCode(), methodName))
+                .append(expression)
                 .append(")");
 
         drlBuilder.append(");\n");
@@ -76,10 +97,36 @@ public abstract class AbstractNodeProcessor implements NodeProcessor {
     }
 
     /**
+     * 从类名获取Bean名称
+     * Spring Bean通常是首字母小写的类名
+     */
+    private String getBeanNameFromClassName(String className) {
+        if (className == null || className.isEmpty()) {
+            return "";
+        }
+
+        // 获取简单类名（不含包名）
+        String simpleName = className;
+        int lastDotIndex = className.lastIndexOf('.');
+        if (lastDotIndex > 0) {
+            simpleName = className.substring(lastDotIndex + 1);
+        }
+
+        // 首字母小写
+        if (simpleName.length() > 1) {
+            return Character.toLowerCase(simpleName.charAt(0)) + simpleName.substring(1);
+        } else if (simpleName.length() == 1) {
+            return simpleName.toLowerCase();
+        }
+
+        return simpleName;
+    }
+
+    /**
      * 获取表达式树
      * 优化点：使用Optional简化空值处理
      */
-    private Optional<Object> getExpressionValue(Variable variable) {
+    private Optional<String> getExpressionValue(Variable variable) {
         return Optional.ofNullable(variable.getData())
                 .map(data -> data.getExpressionTreeJson());
     }
