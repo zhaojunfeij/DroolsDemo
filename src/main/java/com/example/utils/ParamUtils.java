@@ -3,7 +3,6 @@ package com.example.utils;
 import com.alibaba.fastjson.JSON;
 import com.example.model.Func;
 import com.example.model.Param;
-import org.springframework.util.CollectionUtils;
 
 import java.util.HashMap;
 import java.util.List;
