@@ -1,20 +1,15 @@
 package com.example.parse.refactor.processor;
 
-import com.alibaba.fastjson.JSONObject;
-import com.example.model.Func;
-import com.example.parse.refactor.converter.DrlContext;
+import com.example.model.FunctionResponse.FunctionInfo;
 import com.example.model.Node;
 import com.example.model.Variable;
-import com.alibaba.fastjson.JSON;
-import com.example.model.FunctionResponse.FunctionInfo;
+import com.example.parse.refactor.converter.DrlContext;
 import com.example.service.FunctionService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.CollectionUtils;
 
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 /**
  * 抽象节点处理器 - 实现模板方法模式
@@ -30,105 +25,53 @@ public abstract class AbstractNodeProcessor implements NodeProcessor {
      * 获取函数代码映射
      * 从FunctionService动态获取，而非使用静态硬编码
      */
-    protected Map<String, FunctionInfo> getFunctionCodeMap() {
+    private Map<String, FunctionInfo> getFunctionCodeMap() {
         return functionService.getFunctionCodeMap();
     }
 
     /**
-     * 处理节点中的变量
      * 构建变量定义和初始化的DRL代码
+     * 使用函数式编程和构建者模式，提高代码的可读性和可维护性
      */
     protected void buildVariable(DrlContext context, Variable variable) {
+        // 1. 提取变量信息
+        variable.extractInfo(getFunctionCodeMap());
+        if (!variable.isValid()) {
+            return;
+        }
+
+        // 2. 构建DRL代码
         StringBuilder drlBuilder = context.getDrlBuilder();
-        String variableName = variable.getName();
-        String variableNum = variable.getVariableNo();
-        String variableNo = getContextValue(context, variableNum);
-        // 处理表达式树或使用默认值
-        Optional<String> expressionOpt = getExpressionValue(variable);
-        if (!expressionOpt.isPresent()) {
-            return;
-        }
-        String expressionJson = expressionOpt.get();
+        buildVariableCode(drlBuilder, variable);
 
-        Func func = JSON.parseObject(expressionJson, Func.class);
+        // 3. 添加日志输出
+        addVariableLog(drlBuilder, variable);
+    }
 
-        if ("SET_RESULT".equals(func.getCode()) && CollectionUtils.isEmpty(func.getParams())) {
-            return;
-        }
+    /**
+     * 构建变量DRL代码
+     */
+    private void buildVariableCode(StringBuilder drlBuilder, Variable variable) {
         // 添加变量注释
-        drlBuilder.append("        // 变量: ").append(variableName).append("\n");
+        drlBuilder.append("        // 变量: ").append(variable.getName()).append("\n");
 
         // 变量存入上下文
-        drlBuilder.append("        flowContext.put(\"").append(variableNo).append("\", ");
-
-        // 使用动态获取的函数代码映射
-        Map<String, FunctionInfo> functionCodeMap = getFunctionCodeMap();
-        FunctionInfo functionInfo = functionCodeMap.get(func.getCode());
-
-        String methodName = func.getCode();
-        String beanName = "";
-
-        if (functionInfo != null) {
-            methodName = functionInfo.getFunction_method_name();
-            // 将类名转换为Spring Bean名称
-            beanName = getBeanNameFromClassName(functionInfo.getFunction_class_name());
-        }
-
-        // 替换表达式中的函数代码为函数方法名，并添加类名
-        JSONObject modifiedExpression = JSON.parseObject(expressionJson);
-
-        // 在表达式中添加Bean名称信息
-        if (beanName != null && !beanName.isEmpty()) {
-            modifiedExpression.put("className", beanName);
-        }
-        String expression = modifiedExpression.toString().replaceAll(func.getCode(), methodName);
-        expression = expression.replace("\"", "\\\"");
-        expression = "\"" + expression + "\"";
-        drlBuilder.append("VariableUtils.evaluateExpression(")
-                .append("flowContext, ")
-                .append(expression)
-                .append(")");
-
-        drlBuilder.append(");\n");
-
-        // 添加日志输出
-        drlBuilder.append("        System.out.println(\"变量取值结果");
-        drlBuilder.append(variableNo).append(":\"+flowContext.get(\"").append(variableNo).append("\"));\n");
+        drlBuilder.append("        flowContext.put(\"")
+                .append(variable.getVariableNo())
+                .append("\", VariableUtils.evaluateExpression(flowContext, ")
+                .append(variable.getExpression())
+                .append("));\n");
     }
 
     /**
-     * 从类名获取Bean名称
-     * Spring Bean通常是首字母小写的类名
+     * 添加变量日志输出
      */
-    private String getBeanNameFromClassName(String className) {
-        if (className == null || className.isEmpty()) {
-            return "";
-        }
-
-        // 获取简单类名（不含包名）
-        String simpleName = className;
-        int lastDotIndex = className.lastIndexOf('.');
-        if (lastDotIndex > 0) {
-            simpleName = className.substring(lastDotIndex + 1);
-        }
-
-        // 首字母小写
-        if (simpleName.length() > 1) {
-            return Character.toLowerCase(simpleName.charAt(0)) + simpleName.substring(1);
-        } else if (simpleName.length() == 1) {
-            return simpleName.toLowerCase();
-        }
-
-        return simpleName;
-    }
-
-    /**
-     * 获取表达式树
-     * 优化点：使用Optional简化空值处理
-     */
-    private Optional<String> getExpressionValue(Variable variable) {
-        return Optional.ofNullable(variable.getData())
-                .map(data -> data.getExpressionTreeJson());
+    private void addVariableLog(StringBuilder drlBuilder, Variable variable) {
+        drlBuilder.append("        System.out.println(\"变量取值结果")
+                .append(variable.getVariableNo())
+                .append(":\"+flowContext.get(\"")
+                .append(variable.getVariableNo())
+                .append("\"));\n");
     }
 
     /**
@@ -137,55 +80,6 @@ public abstract class AbstractNodeProcessor implements NodeProcessor {
      */
     protected String getContextValue(DrlContext context, String key) {
         return Objects.isNull(context.getVariableMap().get(key)) ? key : context.getVariableMap().get(key);
-    }
-
-    /**
-     * 检查字符串是否为数字
-     * 使用函数式编程风格和更安全的异常处理
-     */
-    protected boolean isNumeric(String str) {
-        return checkString(str, s -> {
-            try {
-                Double.parseDouble(s);
-                return true;
-            } catch (NumberFormatException e) {
-                return false;
-            }
-        });
-    }
-
-    /**
-     * 检查字符串是否为boolean
-     * 使用函数式编程风格提高代码一致性
-     */
-    protected boolean isBoolean(String str) {
-        return checkString(str, s -> {
-            String lowerStr = s.toLowerCase().trim();
-            return lowerStr.equals("true") || lowerStr.equals("false");
-        });
-    }
-
-    /**
-     * 字符串校验的通用方法
-     * 优化点：抽取共用逻辑，减少重复代码
-     */
-    private boolean checkString(String str, Predicate<String> checker) {
-        if (str == null) {
-            return false;
-        }
-        try {
-            return checker.test(str);
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    /**
-     * 判断是否为等于或不等于操作符
-     * 优化点：更清晰的方法命名和实现
-     */
-    protected boolean isEqOrNotEq(String operator) {
-        return "EQ".equals(operator) || "NOT_EQ".equals(operator);
     }
 
     /**

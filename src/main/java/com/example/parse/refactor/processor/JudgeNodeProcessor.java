@@ -2,6 +2,7 @@ package com.example.parse.refactor.processor;
 
 import com.example.model.*;
 import com.example.parse.refactor.converter.DrlContext;
+import com.example.utils.NodeProcessorUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -172,10 +173,10 @@ public class JudgeNodeProcessor extends AbstractNodeProcessor {
                 .append("VariableUtils.getVariableValue(flowContext, \"").append(variableNo).append("\");\n");
         
         // 根据操作值类型确定变量类型
-        if (isNumeric(operatorValue)) {
+        if (NodeProcessorUtils.isNumeric(operatorValue)) {
             drlBuilder.append("        BigDecimal ").append(variableNo).append(" = new BigDecimal(")
                     .append(variableConvert).append(".toString());\n");
-        } else if (isBoolean(operatorValue)) {
+        } else if (NodeProcessorUtils.isBoolean(operatorValue)) {
             drlBuilder.append("        Boolean ").append(variableNo).append(" = (Boolean)")
                     .append(variableConvert).append(";\n");
         } else {
@@ -194,7 +195,7 @@ public class JudgeNodeProcessor extends AbstractNodeProcessor {
      * 生成条件表达式
      */
     private void generateConditionExpression(StringBuilder drlBuilder, String variableNo, String operator, String value) {
-        if (isNumeric(value) && !isEqOrNotEq(operator)) {
+        if (NodeProcessorUtils.isNumeric(value) && !NodeProcessorUtils.isEqOrNotEq(operator)) {
             buildNumberRuleExpress(drlBuilder, variableNo, operator, value);
         } else {
             buildDefaultRuleExpress(drlBuilder, variableNo, operator, value);
@@ -219,7 +220,7 @@ public class JudgeNodeProcessor extends AbstractNodeProcessor {
         }
         
         // 如果是字符串且不是布尔值，需要添加引号
-        if (!isNumeric(value) && !isBoolean(value)) {
+        if (!NodeProcessorUtils.isNumeric(value) && !NodeProcessorUtils.isBoolean(value)) {
             drlBuilder.append("\"").append(value).append("\"");
         } else {
             drlBuilder.append(value);
