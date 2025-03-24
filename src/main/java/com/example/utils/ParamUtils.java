@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.example.model.Func;
 import com.example.model.Param;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -18,6 +19,8 @@ public class ParamUtils {
     static {
         // 注册函数
         FUNCTION_REGISTRY.put("add", ParamUtils::add);
+        FUNCTION_REGISTRY.put("test", ParamUtils::test);
+
         // 可以注册更多函数...
     }
 
@@ -32,7 +35,7 @@ public class ParamUtils {
 
     public Object processJson(String jsonStr, Map<String, Object> values) {
         Func func = JSON.parseObject(jsonStr, Func.class);
-        
+
         return Optional.ofNullable(func)
                 .filter(f -> "FUNC".equals(f.getType()))
                 .map(f -> executeFunction(f, values))
@@ -40,15 +43,15 @@ public class ParamUtils {
     }
 
     private Object executeFunction(Func func, Map<String, Object> values) {
-        // 处理SET_RESULT特殊情况
-        if ("SET_RESULT".equals(func.getCode())) {
+        // 处理SET_RESULT赋值情况
+        if ("setResult".equals(func.getCode())) {
             return Optional.ofNullable(func.getParams())
                     .filter(params -> !params.isEmpty())
                     .map(params -> params.get(0))
                     .map(param -> processParam(param, values))
                     .orElse(null);
         }
-        
+
         // 使用函数注册表执行函数
         return Optional.ofNullable(FUNCTION_REGISTRY.get(func.getCode()))
                 .map(function -> function.apply(values))
@@ -57,12 +60,12 @@ public class ParamUtils {
                     return null;
                 });
     }
-    
+
     private Object processParam(Param param, Map<String, Object> values) {
         if (param == null) {
             return null;
         }
-        
+
         String type = param.getType();
         switch (type) {
             case "FIXED":
@@ -86,6 +89,11 @@ public class ParamUtils {
                 .sum();
     }
 
+    public static Object test(Map<String, Object> values) {
+        Object orderAmt = values.get("orderAmt");
+        return new BigDecimal(orderAmt.toString()).multiply(new BigDecimal(10));
+    }
+
     public static void main(String[] args) {
         // 示例1: 使用add函数
         String json = "{\"type\":\"FUNC\",\"code\":\"add\",\"params\":[{\"type\":\"PARAM\",\"code\":\"userFund\",\"showText\":\"param\"}]}";
@@ -93,10 +101,10 @@ public class ParamUtils {
         Map<String, Object> values = new HashMap<>();
         values.put("userFund", 100);
         values.put("orderAmt", 200);
-        
+
         Object result = process(json, values);
         System.out.println("计算结果: " + result);
-        
+
         // 示例2: 使用SET_RESULT函数
         String json2 = "{\"type\":\"FUNC\",\"code\":\"SET_RESULT\",\"params\":[{\"type\":\"PARAM\",\"code\":\"userFund\",\"showText\":\"param\"}]}";
         System.out.println("获取参数: " + process(json2, values));

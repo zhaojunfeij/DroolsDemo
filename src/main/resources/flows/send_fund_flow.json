@@ -415,6 +415,33 @@
               "identify_code": "6fe46f59ca484963bc8dae5c2462227d",
               "result_type": null
             }
+          },
+          {
+            "name": "积分_测试变量",
+            "type": "normal",
+            "variableNo": "b6ef56c0-003a-4518-95d8-b93c927be38f2",
+            "variableType": 1,
+            "data": {
+              "id": 179,
+              "status": 0,
+              "gmt_create": "2025-03-05 15:43:56.000",
+              "gmt_update": "2025-03-05 15:43:56.000",
+              "create_by": "申素聪",
+              "update_by": "申素聪",
+              "version": 0,
+              "extend": null,
+              "name": "积分_测试变量",
+              "description": "",
+              "expression_tree_json": "{\"type\":\"FUNC\",\"code\":\"FUN_LOGIC_16989087308212\",\"params\":[]}",
+              "type": 1,
+              "rule_no": null,
+              "variable_no": "b6ef56c0-003a-4518-95d8-b93c927be38f2",
+              "easy_env": "prod",
+              "create_by_id": null,
+              "update_by_id": null,
+              "identify_code": "6fe46f59ca484963bc8dae5c2462227d2",
+              "result_type": null
+            }
           }
         ],
         "relationShipGroupList": [

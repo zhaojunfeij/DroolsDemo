@@ -41,7 +41,8 @@ rule "fund_flow"
         System.out.println("变量计算结果nodes_bTN6HhKNXven6G21VxZ8Q_0_result:"+nodes_bTN6HhKNXven6G21VxZ8Q_0);
         // 结束节点
         // 设置结果: result
-        update($inputData); // 更新请求参数
+        // 请求参数处理
+        $inputData.put("result", flowContext.get("userFund"));
         // 设置结果: allresult1
         // 节点结果处理
         $inputData.put("allresult1", flowContext.get("nodes_bTN6HhKNXven6G21VxZ8Q_0"));
@@ -57,10 +58,11 @@ rule "fund_flow"
         flowContext.put("fafd2670-ea2f-4df1-9d49-ca490eb2652e", VariableUtils.evaluateExpression(flowContext, "{\"type\":\"FUNC\",\"code\":\"SET_RESULT\",\"params\":[{\"type\":\"contextParams\",\"code\":\"allresult2\"}]}"));
         System.out.println("变量取值结果fafd2670-ea2f-4df1-9d49-ca490eb2652e:"+flowContext.get("fafd2670-ea2f-4df1-9d49-ca490eb2652e"));
         // 设置结果
-        flowContext.put("allresult2", "0");
+        flowContext.put("allresult2", 0);
         // 结束节点
         // 设置结果: result
-        update($inputData); // 更新请求参数
+        // 请求参数处理
+        $inputData.put("result", flowContext.get("userFund"));
         // 设置结果: allresult1
         // 节点结果处理
         $inputData.put("allresult1", flowContext.get("nodes_bTN6HhKNXven6G21VxZ8Q_0"));

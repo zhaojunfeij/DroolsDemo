@@ -5,8 +5,11 @@ import com.example.parse.refactor.converter.DrlContext;
 import com.example.model.Node;
 import com.example.model.Variable;
 import com.alibaba.fastjson.JSON;
+import com.example.service.FunctionService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -17,7 +20,18 @@ import java.util.function.Predicate;
  * 子类只需实现特定的处理逻辑，提高代码复用性和一致性
  */
 public abstract class AbstractNodeProcessor implements NodeProcessor {
-
+    
+    @Autowired
+    private FunctionService functionService;
+    
+    /**
+     * 获取函数代码映射
+     * 从FunctionService动态获取，而非使用静态硬编码
+     */
+    protected Map<String, String> getFunctionCodeMap() {
+        return functionService.getFunctionCodeMap();
+    }
+    
     /**
      * 处理节点中的变量
      * 构建变量定义和初始化的DRL代码
@@ -27,7 +41,7 @@ public abstract class AbstractNodeProcessor implements NodeProcessor {
         String variableName = variable.getName();
         String variableNum = variable.getVariableNo();
         String variableNo = getContextValue(context, variableNum);
-// 处理表达式树或使用默认值
+       // 处理表达式树或使用默认值
         Optional<Object> expressionOpt = getExpressionValue(variable);
         if (!expressionOpt.isPresent()) {
             return;
@@ -45,9 +59,13 @@ public abstract class AbstractNodeProcessor implements NodeProcessor {
         // 变量存入上下文
         drlBuilder.append("        flowContext.put(\"").append(variableNo).append("\", ");
 
+        // 使用动态获取的函数代码映射
+        Map<String, String> functionCodeMap = getFunctionCodeMap();
+        String methodName = functionCodeMap.getOrDefault(func.getCode(), func.getCode());
+        
         drlBuilder.append("VariableUtils.evaluateExpression(")
                 .append("flowContext, ")
-                .append(JSON.toJSONString(expressionJson))
+                .append(JSON.toJSONString(expressionJson).replaceAll(func.getCode(), methodName))
                 .append(")");
 
         drlBuilder.append(");\n");
