@@ -1,6 +1,7 @@
 package com.example;
 
 import com.example.parse.JsonToDrlConverter;
+import com.example.parse.refactor.converter.JsonToDrlConverterRefactor;
 import com.example.service.RuleService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,12 +13,12 @@ public class QywxUserTest {
     @Autowired
     private RuleService ruleService;
     @Autowired
-    private JsonToDrlConverter converter;
+    private JsonToDrlConverterRefactor converter;
 
     @Test
     void parse() {
         String inputJsonPath = "src/main/resources/flows/qywx_flow.json";
-        String outputDrlPath = "src/main/resources/rules/qywx_flow_rules.drl2";
+        String outputDrlPath = "src/main/resources/rules/qywx_flow_rules.drl";
         try {
             String drlContent = converter.convertJsonToDrl(inputJsonPath);
             converter.writeDrlFile(drlContent, outputDrlPath);
