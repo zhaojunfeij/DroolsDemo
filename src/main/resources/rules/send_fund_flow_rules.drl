@@ -20,7 +20,7 @@ rule "send_fund_flow"
         flowContext.putAll($inputData);
         // 判断节点
         // 变量: 积分_下单金额
-        flowContext.put("orderAmt", VariableUtils.evaluateExpression(flowContext, "{\"code\":\"setResult\",\"className\":\"logicFunctionService\",\"type\":\"FUNC\",\"params\":[{\"code\":\"$.orderAmt\",\"showText\":\"param\",\"type\":\"PARAM\"}]}"));
+        flowContext.put("orderAmt", VariableUtils.evaluateExpression(flowContext, "{\"code\":\"setResult\",\"methodSource\":\"1\",\"className\":\"logicFunctionService\",\"type\":\"FUNC\",\"params\":[{\"code\":\"$.orderAmt\",\"showText\":\"param\",\"type\":\"PARAM\"}]}"));
         System.out.println("变量取值结果orderAmt:"+flowContext.get("orderAmt"));
         // 变量: 积分_测试变量
         flowContext.put("b6ef56c0-003a-4518-95d8-b93c927be38f2", VariableUtils.evaluateExpression(flowContext, "{\"code\":\"test\",\"className\":\"testBeanService\",\"type\":\"FUNC\",\"params\":[]}"));
@@ -33,10 +33,10 @@ rule "send_fund_flow"
         if (orderAmt.compareTo(new BigDecimal(10)) >= 0) {
         // 计算节点
         // 变量: 积分_用户积分
-        flowContext.put("userFund", VariableUtils.evaluateExpression(flowContext, "{\"code\":\"setResult\",\"className\":\"logicFunctionService\",\"type\":\"FUNC\",\"params\":[{\"code\":\"$.userFund\",\"showText\":\"param\",\"type\":\"PARAM\"}]}"));
+        flowContext.put("userFund", VariableUtils.evaluateExpression(flowContext, "{\"code\":\"setResult\",\"methodSource\":\"1\",\"className\":\"logicFunctionService\",\"type\":\"FUNC\",\"params\":[{\"code\":\"$.userFund\",\"showText\":\"param\",\"type\":\"PARAM\"}]}"));
         System.out.println("变量取值结果userFund:"+flowContext.get("userFund"));
         // 变量: 积分_下单金额
-        flowContext.put("orderAmt", VariableUtils.evaluateExpression(flowContext, "{\"code\":\"setResult\",\"className\":\"logicFunctionService\",\"type\":\"FUNC\",\"params\":[{\"code\":\"$.orderAmt\",\"showText\":\"param\",\"type\":\"PARAM\"}]}"));
+        flowContext.put("orderAmt", VariableUtils.evaluateExpression(flowContext, "{\"code\":\"setResult\",\"methodSource\":\"1\",\"className\":\"logicFunctionService\",\"type\":\"FUNC\",\"params\":[{\"code\":\"$.orderAmt\",\"showText\":\"param\",\"type\":\"PARAM\"}]}"));
         System.out.println("变量取值结果orderAmt:"+flowContext.get("orderAmt"));
         // 操作: ADD
         Object nodes_bTN6HhKNXven6G21VxZ8Q_0=VariableUtils.performOperation(flowContext, "userFund", "ADD", "orderAmt", "var");
@@ -47,7 +47,7 @@ rule "send_fund_flow"
         flowContext.put("e51ac426-e2f1-4b62-818d-64380edb5bb3", nodes_bTN6HhKNXven6G21VxZ8Q_0);
        //规则节点: 规则
         // 变量: 积分_下单门店
-        flowContext.put("storeId", VariableUtils.evaluateExpression(flowContext, "{\"code\":\"setResult\",\"className\":\"logicFunctionService\",\"type\":\"FUNC\",\"params\":[{\"code\":\"$.storeId\",\"showText\":\"param\",\"type\":\"PARAM\"}]}"));
+        flowContext.put("storeId", VariableUtils.evaluateExpression(flowContext, "{\"code\":\"setResult\",\"methodSource\":\"1\",\"className\":\"logicFunctionService\",\"type\":\"FUNC\",\"params\":[{\"code\":\"$.storeId\",\"showText\":\"param\",\"type\":\"PARAM\"}]}"));
         System.out.println("变量取值结果storeId:"+flowContext.get("storeId"));
         // 操作: EQ
         boolean nodes_S17p_aQhCzuUCo0laSjWi_1=(boolean)VariableUtils.performOperation(flowContext, "storeId", "EQ", "99999", "data");

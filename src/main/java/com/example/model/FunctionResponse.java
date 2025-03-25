@@ -73,6 +73,10 @@ public class FunctionResponse {
         private String function_result;
         private String function_desc;
 
+        private String function_source;
+
+        private String function_method_type_Enum;
+
         public String getId() {
             return id;
         }
@@ -143,6 +147,22 @@ public class FunctionResponse {
 
         public void setFunction_desc(String function_desc) {
             this.function_desc = function_desc;
+        }
+
+        public String getFunction_source() {
+            return function_source;
+        }
+
+        public void setFunction_source(String function_source) {
+            this.function_source = function_source;
+        }
+
+        public String getFunction_method_type_Enum() {
+            return function_method_type_Enum;
+        }
+
+        public void setFunction_method_type_Enum(String function_method_type_Enum) {
+            this.function_method_type_Enum = function_method_type_Enum;
         }
     }
 } 

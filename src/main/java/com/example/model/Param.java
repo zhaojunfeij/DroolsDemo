@@ -3,7 +3,8 @@ public class Param {
     private String type;
     private String code;
     private String showText;
-
+    // 参数名称，用于Feign调用时的参数命名
+    private String name;
     private Object value;
 
     // Getters and Setters
@@ -13,6 +14,8 @@ public class Param {
     public void setCode(String code) { this.code = code; }
     public String getShowText() { return showText; }
     public void setShowText(String showText) { this.showText = showText; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
     public Object getValue() {
         return value;

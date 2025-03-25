@@ -13,6 +13,6 @@ public class TestBeanService {
      */
     public Object test(Map<String, Object> values) {
         Object orderAmt = values.get("orderAmt");
-        return new BigDecimal(orderAmt.toString()).multiply(new BigDecimal(10));
+        return new BigDecimal(orderAmt.toString()).multiply(new BigDecimal(100));
     }
 }

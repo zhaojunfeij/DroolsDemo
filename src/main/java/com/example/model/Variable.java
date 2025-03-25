@@ -22,6 +22,10 @@ public class Variable {
     private boolean isValid;
     private String variableField;
 
+    private String methodSource;
+
+    private String methodType;
+
     public Variable() {
         this.isValid = true;
     }
@@ -90,6 +94,22 @@ public class Variable {
         this.variableField = variableField;
     }
 
+    public String getMethodSource() {
+        return methodSource;
+    }
+
+    public void setMethodSource(String methodSource) {
+        this.methodSource = methodSource;
+    }
+
+    public String getMethodType() {
+        return methodType;
+    }
+
+    public void setMethodType(String methodType) {
+        this.methodType = methodType;
+    }
+
     /**
      * 变量数据
      */
@@ -111,9 +131,7 @@ public class Variable {
      */
     public void extractInfo(Map<String, FunctionInfo> functionCodeMap) {
         // 1. 获取表达式
-        String expressionJson = Optional.ofNullable(this.data)
-                .map(data -> data.getExpressionTreeJson())
-                .orElse(null);
+        String expressionJson = Optional.ofNullable(this.data).map(data -> data.getExpressionTreeJson()).orElse(null);
 
         if (expressionJson == null) {
             this.isValid = false;
@@ -135,6 +153,8 @@ public class Variable {
         if (functionInfo != null) {
             this.methodName = functionInfo.getFunction_method_name();
             this.beanName = NodeProcessorUtils.getBeanNameFromClassName(functionInfo.getFunction_class_name());
+            this.methodType = functionInfo.getFunction_method_type_Enum();
+            this.methodSource = functionInfo.getFunction_source();
         }
 
         // 4. 构建修改后的表达式
@@ -142,9 +162,13 @@ public class Variable {
         if (this.beanName != null && !this.beanName.isEmpty()) {
             modifiedExpression.put("className", this.beanName);
         }
-        this.expression = modifiedExpression.toString()
-                .replaceAll(func.getCode(), this.methodName)
-                .replace("\"", "\\\"");
+        if (this.methodType != null && !this.methodType.isEmpty()) {
+            modifiedExpression.put("methodType", this.methodType);
+        }
+        if (this.methodSource != null && !this.methodSource.isEmpty()) {
+            modifiedExpression.put("methodSource", this.methodSource);
+        }
+        this.expression = modifiedExpression.toString().replaceAll(func.getCode(), this.methodName).replace("\"", "\\\"");
         this.expression = "\"" + this.expression + "\"";
     }
 } 
