@@ -80,7 +80,7 @@ public abstract class AbstractNodeProcessor implements NodeProcessor {
      * 在多个子类中共享的工具方法
      */
     protected String getContextValue(DrlContext context, String key) {
-        return Objects.isNull(context.getVariableMap().get(key)) ? key : context.getVariableMap().get(key);
+        return Objects.isNull(context.getVariableMap().get(key)) ? key.replaceAll("-", "_") : context.getVariableMap().get(key);
     }
 
     /**

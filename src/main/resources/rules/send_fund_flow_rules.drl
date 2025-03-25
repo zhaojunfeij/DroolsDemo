@@ -23,8 +23,8 @@ rule "send_fund_flow"
         flowContext.put("orderAmt", VariableUtils.evaluateExpression(flowContext, "{\"code\":\"setResult\",\"methodSource\":\"1\",\"className\":\"logicFunctionService\",\"type\":\"FUNC\",\"params\":[{\"code\":\"$.orderAmt\",\"showText\":\"param\",\"type\":\"PARAM\"}]}"));
         System.out.println("变量取值结果orderAmt:"+flowContext.get("orderAmt"));
         // 变量: 积分_测试变量
-        flowContext.put("b6ef56c0-003a-4518-95d8-b93c927be38f2", VariableUtils.evaluateExpression(flowContext, "{\"code\":\"test\",\"className\":\"testBeanService\",\"type\":\"FUNC\",\"params\":[]}"));
-        System.out.println("变量取值结果b6ef56c0-003a-4518-95d8-b93c927be38f2:"+flowContext.get("b6ef56c0-003a-4518-95d8-b93c927be38f2"));
+        flowContext.put("b6ef56c0_003a_4518_95d8_b93c927be38f2", VariableUtils.evaluateExpression(flowContext, "{\"code\":\"test\",\"className\":\"testBeanService\",\"type\":\"FUNC\",\"params\":[]}"));
+        System.out.println("变量取值结果b6ef56c0_003a_4518_95d8_b93c927be38f2:"+flowContext.get("b6ef56c0_003a_4518_95d8_b93c927be38f2"));
         // 条件分支
         // 条件 1
         Object orderAmtConvert = VariableUtils.getVariableValue(flowContext, "orderAmt");
@@ -44,7 +44,7 @@ rule "send_fund_flow"
         System.out.println("变量计算结果nodes_bTN6HhKNXven6G21VxZ8Q_0_result:"+nodes_bTN6HhKNXven6G21VxZ8Q_0);
         // 赋值节点
         // 设置结果
-        flowContext.put("e51ac426-e2f1-4b62-818d-64380edb5bb3", nodes_bTN6HhKNXven6G21VxZ8Q_0);
+        flowContext.put("e51ac426_e2f1_4b62_818d_64380edb5bb3", nodes_bTN6HhKNXven6G21VxZ8Q_0);
        //规则节点: 规则
         // 变量: 积分_下单门店
         flowContext.put("storeId", VariableUtils.evaluateExpression(flowContext, "{\"code\":\"setResult\",\"methodSource\":\"1\",\"className\":\"logicFunctionService\",\"type\":\"FUNC\",\"params\":[{\"code\":\"$.storeId\",\"showText\":\"param\",\"type\":\"PARAM\"}]}"));
@@ -54,7 +54,7 @@ rule "send_fund_flow"
         flowContext.put("nodes_S17p_aQhCzuUCo0laSjWi_1", nodes_S17p_aQhCzuUCo0laSjWi_1);
         System.out.println("变量计算结果 nodes_S17p_aQhCzuUCo0laSjWi_1_result: "+nodes_S17p_aQhCzuUCo0laSjWi_1);
         // 操作: GE
-        boolean nodes_S17p_aQhCzuUCo0laSjWi_2=(boolean)VariableUtils.performOperation(flowContext, "e51ac426-e2f1-4b62-818d-64380edb5bb3", "GE", "200", "data");
+        boolean nodes_S17p_aQhCzuUCo0laSjWi_2=(boolean)VariableUtils.performOperation(flowContext, "e51ac426_e2f1_4b62_818d_64380edb5bb3", "GE", "200", "data");
         flowContext.put("nodes_S17p_aQhCzuUCo0laSjWi_2", nodes_S17p_aQhCzuUCo0laSjWi_2);
         System.out.println("变量计算结果 nodes_S17p_aQhCzuUCo0laSjWi_2_result: "+nodes_S17p_aQhCzuUCo0laSjWi_2);
        if (((boolean)flowContext.get("nodes_S17p_aQhCzuUCo0laSjWi_1")) && ((boolean)flowContext.get("nodes_S17p_aQhCzuUCo0laSjWi_2"))) {
@@ -67,7 +67,7 @@ rule "send_fund_flow"
         $inputData.put("orderAmt", flowContext.get("orderAmt"));
         // 设置结果: prizeFund
         // 变量参数处理
-        $inputData.put("prizeFund", flowContext.get("e51ac426-e2f1-4b62-818d-64380edb5bb3"));
+        $inputData.put("prizeFund", flowContext.get("e51ac426_e2f1_4b62_818d_64380edb5bb3"));
         System.out.println("规则流程执行完成");
        } else {
            // 条件不满足，直接返回
@@ -78,7 +78,7 @@ rule "send_fund_flow"
         if (orderAmt.compareTo(new BigDecimal(10)) < 0) {
         // 赋值节点
         // 设置结果
-        flowContext.put("e51ac426-e2f1-4b62-818d-64380edb5bb3", 0);
+        flowContext.put("e51ac426_e2f1_4b62_818d_64380edb5bb3", 0);
         // 结束节点
         // 设置结果: userFund
         // 请求参数处理
@@ -88,7 +88,7 @@ rule "send_fund_flow"
         $inputData.put("orderAmt", flowContext.get("orderAmt"));
         // 设置结果: prizeFund
         // 变量参数处理
-        $inputData.put("prizeFund", flowContext.get("e51ac426-e2f1-4b62-818d-64380edb5bb3"));
+        $inputData.put("prizeFund", flowContext.get("e51ac426_e2f1_4b62_818d_64380edb5bb3"));
         System.out.println("规则流程执行完成");
         }
 end

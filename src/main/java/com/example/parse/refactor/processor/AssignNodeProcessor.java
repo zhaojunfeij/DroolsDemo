@@ -73,7 +73,7 @@ public class AssignNodeProcessor extends AbstractNodeProcessor {
      * 生成设置结果的DRL代码
      */
     private void generateSetResultCode(StringBuilder drlBuilder, RelationShip relationShip) {
-        String variableNo = relationShip.getVariableNo();
+        String variableNo = relationShip.getVariableNo().replaceAll("-","_");
         String operatorValue = relationShip.getOperatorValue();
         String operatorValueType = relationShip.getOperatorValueType();//data node
         drlBuilder.append("        // 设置结果\n")
