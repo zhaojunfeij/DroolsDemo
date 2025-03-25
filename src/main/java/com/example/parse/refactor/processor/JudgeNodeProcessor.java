@@ -6,50 +6,59 @@ import com.example.utils.NodeProcessorUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 /**
- * 判断节点处理器 - 负责生成判断节点的DRL规则代码
- * 采用函数式编程和模板方法模式，提供清晰的代码结构
+ * 判断节点处理器 - 生成判断节点的DRL规则代码
  */
 @Component
 public class JudgeNodeProcessor extends AbstractNodeProcessor {
 
-    // 操作类型常量
-    private static final String OPERATOR_TYPE_DATA = "data";  // 变量与常量比较
-    private static final String OPERATOR_TYPE_VAR = "var";    // 变量与变量比较
-
-    // 变量类型常量
+    // 常量定义
+    private static final String OPERATOR_TYPE_DATA = "data";
+    private static final String OPERATOR_TYPE_VAR = "var";
     private static final String TYPE_NUMBER = "BigDecimal";
     private static final String TYPE_BOOLEAN = "Boolean";
     private static final String TYPE_STRING = "String";
 
-    // 操作符映射表，提高代码可读性和可维护性
-    private static final Map<String, String> OPERATOR_SYMBOLS = new HashMap<>();
+    // 运算符映射
+    private static final Map<String, String> NUMBER_OPERATOR_SYMBOLS = new HashMap<>();
+    private static final Map<String, BiConsumer<StringBuilder, ComparisonContext>> COMPARISON_STRATEGIES = new HashMap<>();
+    // 比较表达式生成器映射
+    private static final Map<String, BiConsumer<StringBuilder, ComparisonContext>> EXPRESSION_BUILDERS = new HashMap<>();
 
     static {
-        // 初始化操作符映射
-        OPERATOR_SYMBOLS.put("GT", " > ");
-        OPERATOR_SYMBOLS.put("GE", " >= ");
-        OPERATOR_SYMBOLS.put("LT", " < ");
-        OPERATOR_SYMBOLS.put("LE", " <= ");
-        OPERATOR_SYMBOLS.put("EQ", "AA.equals(\"BB\")");
-        OPERATOR_SYMBOLS.put("NOT_EQ", "!AA.equals(\"BB\")");
+        // 初始化映射
+        NUMBER_OPERATOR_SYMBOLS.put("GT", " > ");
+        NUMBER_OPERATOR_SYMBOLS.put("GE", " >= ");
+        NUMBER_OPERATOR_SYMBOLS.put("LT", " < ");
+        NUMBER_OPERATOR_SYMBOLS.put("LE", " <= ");
+        
+        COMPARISON_STRATEGIES.put(OPERATOR_TYPE_DATA, JudgeNodeProcessor::buildDataComparisonExpression);
+        COMPARISON_STRATEGIES.put(OPERATOR_TYPE_VAR, JudgeNodeProcessor::buildVariableComparisonExpression);
+        
+        // 初始化表达式生成器
+        EXPRESSION_BUILDERS.put("EQ", JudgeNodeProcessor::buildEqualsExpression);
+        EXPRESSION_BUILDERS.put("NOT_EQ", JudgeNodeProcessor::buildNotEqualsExpression);
+        EXPRESSION_BUILDERS.put("NUMBER", JudgeNodeProcessor::buildNumberComparisonExpression);
+        EXPRESSION_BUILDERS.put("DEFAULT", JudgeNodeProcessor::buildDefaultComparisonExpression);
     }
 
     @Override
     public void process(Node node, String nodeId, DrlContext context) {
         StringBuilder drlBuilder = context.getDrlBuilder();
-
-        // 添加节点注释
         drlBuilder.append("        // 判断节点\n");
 
         // 处理节点变量
-        processNodeVariables(node, context);
+        Optional.ofNullable(node.getProperties().getNodeVariableList())
+                .ifPresent(variables -> variables.forEach(variable -> buildVariable(context, variable)));
 
-        // 处理判断逻辑和条件分支
-        List<RelationShipGroup> relationShipGroups = node.getProperties().getRelationShipGroupList();
-        if (relationShipGroups != null && hasValidRelationships(relationShipGroups)) {
-            processRelationships(nodeId, relationShipGroups, context);
+        // 处理判断逻辑
+        List<RelationShipGroup> groups = node.getProperties().getRelationShipGroupList();
+        if (groups != null && !groups.isEmpty() && groups.stream()
+                .anyMatch(g -> g.getRelationShipList() != null && !g.getRelationShipList().isEmpty())) {
+            processRelationships(nodeId, groups, context);
         } else {
             // 无条件判断，继续执行下一节点
             drlBuilder.append("        // 无条件判断，继续执行下一节点\n");
@@ -58,272 +67,243 @@ public class JudgeNodeProcessor extends AbstractNodeProcessor {
     }
 
     /**
-     * 处理节点变量列表
-     */
-    private void processNodeVariables(Node node, DrlContext context) {
-        List<Variable> variables = node.getProperties().getNodeVariableList();
-        if (variables != null) {
-            variables.forEach(variable -> buildVariable(context, variable));
-        }
-    }
-
-    /**
-     * 检查是否存在有效的关系定义
-     */
-    private boolean hasValidRelationships(List<RelationShipGroup> relationShipGroups) {
-        if (relationShipGroups.isEmpty()) {
-            return false;
-        }
-
-        for (RelationShipGroup group : relationShipGroups) {
-            if (group.getRelationShipList() != null && !group.getRelationShipList().isEmpty()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
      * 处理关系组和条件分支
      */
-    private void processRelationships(String nodeId, List<RelationShipGroup> relationShipGroups, DrlContext context) {
+    private void processRelationships(String nodeId, List<RelationShipGroup> groups, DrlContext context) {
         Map<String, Boolean> variableNameMap = new HashMap<>();
-        StringBuilder drlBuilder = context.getDrlBuilder();
-
+        
         // 获取节点的边并按标签排序
-        List<Edge> edges = getEdgesForNode(nodeId, context);
+        List<Edge> edges = context.getEdgeMap().getOrDefault(nodeId, Collections.emptyList());
         edges.sort(Comparator.comparing(Edge::getLabel));
 
         // 处理每个关系组
-        for (RelationShipGroup group : relationShipGroups) {
-            if (group.getRelationShipList() == null || group.getRelationShipList().isEmpty()) {
-                continue;
-            }
-
-            drlBuilder.append("        // 条件分支\n");
-            processConditionBranches(group.getRelationShipList(), edges, context, variableNameMap);
-        }
-    }
-
-    /**
-     * 获取节点的所有边
-     */
-    private List<Edge> getEdgesForNode(String nodeId, DrlContext context) {
-        List<Edge> edges = context.getEdgeMap().get(nodeId);
-        return edges != null ? edges : Collections.emptyList();
+        groups.stream()
+            .filter(group -> group.getRelationShipList() != null && !group.getRelationShipList().isEmpty())
+            .forEach(group -> {
+                context.getDrlBuilder().append("        // 条件分支\n");
+                processConditionBranches(group.getRelationShipList(), edges, context, variableNameMap);
+            });
     }
 
     /**
      * 处理条件分支
      */
-    private void processConditionBranches(List<RelationShip> relationships, List<Edge> edges, DrlContext context, Map<String, Boolean> variableNameMap) {
+    private void processConditionBranches(List<RelationShip> relationships, List<Edge> edges, 
+                                         DrlContext context, Map<String, Boolean> variableNameMap) {
         // 为每个有效边生成条件分支
-        for (Edge edge : edges) {
-            Integer label = edge.getLabel();
-            if (label != null && label > 0) {
-                generateConditionBranch(relationships, edge, context, variableNameMap);
-            }
-        }
-    }
-
-    /**
-     * 生成单个条件分支代码
-     */
-    private void generateConditionBranch(List<RelationShip> relationships, Edge edge, DrlContext context, Map<String, Boolean> variableNameMap) {
-        int conditionLabel = edge.getLabel();
-        String targetNodeId = edge.getTarget();
-
-        // 查找对应的关系定义
-        for (RelationShip relation : relationships) {
-            if (matchesConditionLabel(relation, conditionLabel)) {
-                buildConditionBranch(relation, conditionLabel, targetNodeId, context, variableNameMap);
-                break;
-            }
-        }
-    }
-
-    /**
-     * 检查关系是否匹配条件标签
-     */
-    private boolean matchesConditionLabel(RelationShip relation, int conditionLabel) {
-        String relationshipNo = relation.getRelationshipNo();
-        return relationshipNo != null && Integer.parseInt(relationshipNo) == conditionLabel;
+        edges.stream()
+            .filter(edge -> edge.getLabel() != null && edge.getLabel() > 0)
+            .forEach(edge -> {
+                int label = edge.getLabel();
+                String targetNodeId = edge.getTarget();
+                
+                // 查找匹配的关系定义
+                relationships.stream()
+                    .filter(r -> r.getRelationshipNo() != null && 
+                                 Integer.parseInt(r.getRelationshipNo()) == label)
+                    .findFirst()
+                    .ifPresent(relation -> buildConditionBranch(
+                        relation, label, targetNodeId, context, variableNameMap));
+            });
     }
 
     /**
      * 构建单个条件分支
      */
-    private void buildConditionBranch(RelationShip relation, int conditionLabel, String targetNodeId, DrlContext context, Map<String, Boolean> variableNameMap) {
+    private void buildConditionBranch(RelationShip relation, int label, String targetNodeId, 
+                                     DrlContext context, Map<String, Boolean> variableNameMap) {
         StringBuilder drlBuilder = context.getDrlBuilder();
-
+        
         // 获取判断条件参数
         String variableNo = getContextValue(context, relation.getVariableNo());
         String operator = relation.getOperator();
         String operatorValue = relation.getOperatorValue();
         String operatorValueType = relation.getOperatorValueType();
-
-        // 添加条件注释
-        drlBuilder.append("        // 条件 ").append(conditionLabel).append("\n");
-
-        // 处理变量取值
-        processVariableValue(drlBuilder, variableNo, operator, operatorValue, variableNameMap);
-
+        
+        // 添加条件注释和变量处理
+        drlBuilder.append("        // 条件 ").append(label).append("\n");
+        processVariableValue(drlBuilder, variableNo, operatorValue, variableNameMap);
+        
         // 构建条件表达式
-        buildConditionExpression(drlBuilder, variableNo, operator, operatorValue, operatorValueType);
-
-        // 条件分支代码块开始
+        drlBuilder.append("        if (");
+        
+        // 使用策略模式选择比较表达式构建方法
+        ComparisonContext ctx = new ComparisonContext(
+            drlBuilder, variableNo, operator, operatorValue, operatorValueType);
+        
+        COMPARISON_STRATEGIES.getOrDefault(operatorValueType, 
+            (builder, c) -> builder.append("true /* 未知比较类型 */")).accept(drlBuilder, ctx);
+        
+        // 条件分支代码块
         drlBuilder.append(") {\n");
-
-        // 递归处理目标节点
         processNode(targetNodeId, context);
-
-        // 条件分支代码块结束
         drlBuilder.append("        }\n");
-    }
-
-    /**
-     * 获取映射后的变量名
-     */
-    private String getMappedVariableName(Map<String, String> variableMap, String variableId) {
-        String mappedName = variableMap.get(variableId);
-        return mappedName != null ? mappedName : variableId;
     }
 
     /**
      * 处理变量取值逻辑
      */
-    private void processVariableValue(StringBuilder drlBuilder, String variableNo, String operator, String operatorValue, Map<String, Boolean> variableNameMap) {
+    private void processVariableValue(StringBuilder drlBuilder, String variableNo, 
+                                    String operatorValue, Map<String, Boolean> variableNameMap) {
         // 已处理过的变量，跳过
-        Boolean processed = variableNameMap.get(variableNo);
-        if (processed != null && processed) {
+        if (variableNameMap.getOrDefault(variableNo, false)) {
             return;
         }
-
-        // 变量转换变量名
+        
+        // 变量名和转换后的变量名
         String variableConvert = variableNo + "Convert";
-
-        // 添加取值代码
-        appendVariableGetterCode(drlBuilder, variableNo, variableConvert);
-
-        // 添加类型转换代码
-        appendVariableTypeConversionCode(drlBuilder, variableNo, operator, variableConvert, operatorValue);
-
-        // 添加日志输出
-        drlBuilder.append("        System.out.println(\"开始计算变量取值").append(variableNo).append(": \" + ").append(variableNo).append(");\n");
-
+        String variableType = determineVariableType(operatorValue);
+        
+        // 添加变量处理代码
+        drlBuilder.append("        Object ").append(variableConvert)
+                 .append(" = VariableUtils.getVariableValue(flowContext, \"")
+                 .append(variableNo).append("\");\n")
+                 .append("        ").append(variableType)
+                 .append(" ").append(variableNo)
+                 .append(" = ");
+        
+        // 根据变量类型生成转换代码
+        switch (variableType) {
+            case TYPE_NUMBER:
+                drlBuilder.append("new BigDecimal(").append(variableConvert).append(".toString())");
+                break;
+            case TYPE_BOOLEAN:
+                drlBuilder.append("(Boolean)").append(variableConvert);
+                break;
+            default:
+                drlBuilder.append("(String)").append(variableConvert);
+        }
+        
+        drlBuilder.append(";\n")
+                 .append("        System.out.println(\"开始计算变量取值")
+                 .append(variableNo).append(": \" + ").append(variableNo).append(");\n");
+                
         // 标记变量已处理
         variableNameMap.put(variableNo, true);
     }
-
+    
     /**
-     * 添加变量获取代码
+     * 确定变量类型
      */
-    private void appendVariableGetterCode(StringBuilder drlBuilder, String variableNo, String variableConvert) {
-        drlBuilder.append("        Object ").append(variableConvert).append(" = ").append("VariableUtils.getVariableValue(flowContext, \"").append(variableNo).append("\");\n");
-    }
-
-    /**
-     * 添加变量类型转换代码
-     * 根据操作值类型确定变量的Java类型，并生成相应的类型转换代码
-     */
-    private void appendVariableTypeConversionCode(StringBuilder drlBuilder, String variableNo, String operator, String variableConvert, String operatorValue) {
-        String variableType;
-        String conversionCode;
-        if ("EQ".equals(operator) || "NOT_EQ".equals(operator)) {
-            if (NodeProcessorUtils.isBoolean(operatorValue)) {
-                variableType = TYPE_BOOLEAN;
-                conversionCode = "(Boolean)" + variableConvert;
-            } else {
-                variableType = TYPE_STRING;
-                conversionCode = "(String)" + variableConvert;
-            }
+    private String determineVariableType(String value) {
+        if (NodeProcessorUtils.isNumeric(value)) {
+            return TYPE_NUMBER;
+        } else if (NodeProcessorUtils.isBoolean(value)) {
+            return TYPE_BOOLEAN;
         } else {
-            if (NodeProcessorUtils.isNumeric(operatorValue)) {
-                variableType = TYPE_NUMBER;
-                conversionCode = "new BigDecimal(" + variableConvert + ".toString())";
-            } else if (NodeProcessorUtils.isBoolean(operatorValue)) {
-                variableType = TYPE_BOOLEAN;
-                conversionCode = "(Boolean)" + variableConvert;
-            } else {
-                variableType = TYPE_STRING;
-                conversionCode = "(String)" + variableConvert;
-            }
-        }
-
-        // 生成变量声明和赋值语句
-        drlBuilder.append("        ").append(variableType).append(" ").append(variableNo).append(" = ").append(conversionCode).append(";\n");
-    }
-
-    /**
-     * 构建条件表达式
-     */
-    private void buildConditionExpression(StringBuilder drlBuilder, String variableNo, String operator, String operatorValue, String operatorValueType) {
-        drlBuilder.append("        if (");
-
-        if (OPERATOR_TYPE_DATA.equals(operatorValueType)) {
-            // 变量与常量比较
-            if (NodeProcessorUtils.isNumeric(operatorValue) && !NodeProcessorUtils.isEqOrNotEq(operator)) {
-                buildNumberComparisonExpression(drlBuilder, variableNo, operator, operatorValue);
-            } else {
-                buildSimpleComparisonExpression(drlBuilder, variableNo, operator, operatorValue);
-            }
-        } else if (OPERATOR_TYPE_VAR.equals(operatorValueType)) {
-            // 变量与变量比较
-            buildVariableComparisonExpression(drlBuilder, variableNo, operator, operatorValue);
+            return TYPE_STRING;
         }
     }
-
+    
     /**
-     * 构建简单比较表达式
+     * 构建常量比较表达式
      */
-    private void buildSimpleComparisonExpression(StringBuilder drlBuilder, String variableNo, String operator, String value) {
-        String operatorSymbol = OPERATOR_SYMBOLS.get(operator);
-        if (operatorSymbol == null) {
-            operatorSymbol = " " + operator + " ";
-        }
-        if ("EQ".equals(operator) || "NOT_EQ".equals(operator)) {
-            if (NodeProcessorUtils.isBoolean(value)) {
-                drlBuilder.append(variableNo);
-
-            } else {
-                drlBuilder.append(operatorSymbol.replaceAll("BB", value).replaceAll("AA", variableNo));
-            }
+    private static void buildDataComparisonExpression(StringBuilder drlBuilder, ComparisonContext ctx) {
+        // 选择合适的表达式生成器
+        BiConsumer<StringBuilder, ComparisonContext> builder;
+        
+        if (NodeProcessorUtils.isNumeric(ctx.value) && !NodeProcessorUtils.isEqOrNotEq(ctx.operator)) {
+            builder = EXPRESSION_BUILDERS.get("NUMBER");
+        } else if ("EQ".equals(ctx.operator)) {
+            builder = EXPRESSION_BUILDERS.get("EQ");
+        } else if ("NOT_EQ".equals(ctx.operator)) {
+            builder = EXPRESSION_BUILDERS.get("NOT_EQ");
         } else {
-
-            drlBuilder.append(variableNo).append(operatorSymbol);
-
-            // 如果是字符串且不是布尔值，需要添加引号
-            if (!NodeProcessorUtils.isNumeric(value) && !NodeProcessorUtils.isBoolean(value)) {
-                drlBuilder.append("\"").append(value).append("\"");
-            } else {
-                drlBuilder.append(value);
-            }
+            builder = EXPRESSION_BUILDERS.get("DEFAULT");
         }
+        
+        // 生成表达式
+        builder.accept(drlBuilder, ctx);
     }
-
+    
     /**
-     * 构建数字比较表达式
+     * 构建数值比较表达式
      */
-    private void buildNumberComparisonExpression(StringBuilder drlBuilder, String variableNo, String operator, String value) {
-        drlBuilder.append(variableNo).append(".compareTo(new BigDecimal(").append(value).append("))");
-
-        String operatorSymbol = OPERATOR_SYMBOLS.get(operator);
-        if (operatorSymbol == null) {
-            operatorSymbol = " " + operator + " ";
-        }
-
-        drlBuilder.append(operatorSymbol).append("0");
+    private static void buildNumberComparisonExpression(StringBuilder drlBuilder, ComparisonContext ctx) {
+        drlBuilder.append(ctx.variable)
+                 .append(".compareTo(new BigDecimal(")
+                 .append(ctx.value)
+                 .append("))")
+                 .append(NUMBER_OPERATOR_SYMBOLS.getOrDefault(ctx.operator, " " + ctx.operator + " "))
+                 .append("0");
     }
-
+    
+    /**
+     * 构建等于比较表达式
+     */
+    private static void buildEqualsExpression(StringBuilder drlBuilder, ComparisonContext ctx) {
+        drlBuilder.append(ctx.variable).append(" != null && ");
+        appendEqualsCheck(drlBuilder, ctx.variable, ctx.value);
+    }
+    
+    /**
+     * 构建不等于比较表达式
+     */
+    private static void buildNotEqualsExpression(StringBuilder drlBuilder, ComparisonContext ctx) {
+        drlBuilder.append(ctx.variable).append(" == null || !(");
+        appendEqualsCheck(drlBuilder, ctx.variable, ctx.value);
+        drlBuilder.append(")");
+    }
+    
+    /**
+     * 构建默认比较表达式
+     */
+    private static void buildDefaultComparisonExpression(StringBuilder drlBuilder, ComparisonContext ctx) {
+        drlBuilder.append(ctx.variable).append(" ").append(ctx.operator).append(" ");
+        
+        if (!NodeProcessorUtils.isNumeric(ctx.value) && !NodeProcessorUtils.isBoolean(ctx.value)) {
+            drlBuilder.append("\"").append(ctx.value).append("\"");
+        } else {
+            drlBuilder.append(ctx.value);
+        }
+    }
+    
+    /**
+     * 添加相等性检查代码
+     */
+    private static void appendEqualsCheck(StringBuilder drlBuilder, String variable, String value) {
+        if (NodeProcessorUtils.isNumeric(value)) {
+            drlBuilder.append("new BigDecimal(\"").append(value).append("\").equals(")
+                     .append(variable).append(")");
+        } else if (NodeProcessorUtils.isBoolean(value)) {
+            drlBuilder.append(variable).append(".equals(").append(value).append(")");
+        } else {
+            drlBuilder.append(variable).append(".equals(\"").append(value).append("\")");
+        }
+    }
+    
     /**
      * 构建变量比较表达式
      */
-    private void buildVariableComparisonExpression(StringBuilder drlBuilder, String variable1, String operator, String variable2) {
-        drlBuilder.append("VariableUtils.compareVariables(flowContext, \"").append(variable1).append("\", \"").append(operator).append("\", \"").append(variable2).append("\")");
+    private static void buildVariableComparisonExpression(StringBuilder drlBuilder, ComparisonContext ctx) {
+        drlBuilder.append("VariableUtils.compareVariables(flowContext, \"")
+                 .append(ctx.variable).append("\", \"")
+                 .append(ctx.operator).append("\", \"")
+                 .append(ctx.value).append("\")");
     }
-
+    
     @Override
     public String getNodeType() {
         return NodeType.JUDGE.getType();
+    }
+    
+    /**
+     * 比较上下文类
+     */
+    private static class ComparisonContext {
+        private final StringBuilder builder;
+        private final String variable;
+        private final String operator;
+        private final String value;
+        private final String valueType;
+        
+        public ComparisonContext(StringBuilder builder, String variable, 
+                               String operator, String value, String valueType) {
+            this.builder = builder;
+            this.variable = variable;
+            this.operator = operator;
+            this.value = value;
+            this.valueType = valueType;
+        }
     }
 } 

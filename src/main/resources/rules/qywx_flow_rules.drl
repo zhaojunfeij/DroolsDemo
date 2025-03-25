@@ -49,7 +49,7 @@ rule "qywx_flow"
         Object weComFriendConvert = VariableUtils.getVariableValue(flowContext, "weComFriend");
         Boolean weComFriend = (Boolean)weComFriendConvert;
         System.out.println("开始计算变量取值weComFriend: " + weComFriend);
-        if (weComFriend) {
+        if (weComFriend != null && weComFriend.equals(true)) {
         // 结束节点
         // 设置结果: resultFlag
         // 请求参数处理
@@ -57,7 +57,7 @@ rule "qywx_flow"
         System.out.println("规则流程执行完成");
         }
         // 条件 2
-        if (weComFriend) {
+        if (weComFriend == null || !(weComFriend.equals(true))) {
         // 判断节点
         // 变量: 非企微好友开关
         flowContext.put("c947a373_4058_4663_8971_6257ac7ec7fc", VariableUtils.evaluateExpression(flowContext, "{\"code\":\"setResult\",\"methodSource\":\"1\",\"className\":\"logicFunctionService\",\"type\":\"FUNC\",\"params\":[{\"type\":\"FIXED\",\"value\":\"1\"}]}"));
@@ -65,9 +65,9 @@ rule "qywx_flow"
         // 条件分支
         // 条件 1
         Object c947a373_4058_4663_8971_6257ac7ec7fcConvert = VariableUtils.getVariableValue(flowContext, "c947a373_4058_4663_8971_6257ac7ec7fc");
-        String c947a373_4058_4663_8971_6257ac7ec7fc = (String)c947a373_4058_4663_8971_6257ac7ec7fcConvert;
+        BigDecimal c947a373_4058_4663_8971_6257ac7ec7fc = new BigDecimal(c947a373_4058_4663_8971_6257ac7ec7fcConvert.toString());
         System.out.println("开始计算变量取值c947a373_4058_4663_8971_6257ac7ec7fc: " + c947a373_4058_4663_8971_6257ac7ec7fc);
-        if (!c947a373_4058_4663_8971_6257ac7ec7fc.equals("1")) {
+        if (c947a373_4058_4663_8971_6257ac7ec7fc == null || !(new BigDecimal("1").equals(c947a373_4058_4663_8971_6257ac7ec7fc))) {
         // 结束节点
         // 设置结果: resultFlag
         // 请求参数处理
@@ -75,7 +75,7 @@ rule "qywx_flow"
         System.out.println("规则流程执行完成");
         }
         // 条件 2
-        if (c947a373_4058_4663_8971_6257ac7ec7fc.equals("1")) {
+        if (c947a373_4058_4663_8971_6257ac7ec7fc != null && new BigDecimal("1").equals(c947a373_4058_4663_8971_6257ac7ec7fc)) {
         // 赋值节点
         // 设置结果
         flowContext.put("$.resultFlag", true);
